@@ -1,0 +1,32 @@
+{
+  "name": "pr-summary",
+  "version": "1.0.0",
+  "description": "Summarize changes in a pull request",
+  "author": "Claude Code",
+  "license": "MIT",
+  "tags": ["pull-request", "pr", "review", "github", "summary"],
+  "compatible_agents": [
+    "Claude Code",
+    "Explore"
+  ],
+  "capabilities": [
+    "Analyze PR diffs",
+    "Summarize changes",
+    "Review comments",
+    "Flag risks",
+    "Generate summaries",
+    "Provide recommendations"
+  ],
+  "configuration": {
+    "context": "fork",
+    "agent": "Explore",
+    "timeout": 60000
+  },
+  "requirements": {
+    "git": "2.0+",
+    "gh": "2.0+"
+  },
+  "environment-variables": [
+    "GITHUB_TOKEN"
+  ]
+}
