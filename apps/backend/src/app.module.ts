@@ -8,6 +8,13 @@ import { InspectionsModule } from './modules/inspections/inspections.module';
 import { MaintenanceModule } from './modules/maintenance/maintenance.module';
 import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { HealthModule } from './modules/health/health.module';
+import {
+  User,
+  Vehicle,
+  Driver,
+  Inspection,
+  MaintenanceSchedule,
+} from './database/entities';
 
 @Module({
   imports: [
@@ -22,9 +29,10 @@ import { HealthModule } from './modules/health/health.module';
       username: process.env.DB_USER || 'postgres',
       password: process.env.DB_PASSWORD || 'postgres',
       database: process.env.DB_NAME || 'vehicle_inspection_dev',
-      entities: ['dist/**/*.entity.js'],
+      entities: [User, Vehicle, Driver, Inspection, MaintenanceSchedule],
       migrations: ['dist/database/migrations/*.js'],
-      synchronize: process.env.DB_SYNCHRONIZE === 'true',
+      migrationsRun: true,
+      synchronize: false,
       logging: process.env.DB_LOGGING === 'true',
     }),
     AuthModule,

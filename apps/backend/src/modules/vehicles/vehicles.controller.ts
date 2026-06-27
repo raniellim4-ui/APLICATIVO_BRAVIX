@@ -8,27 +8,27 @@ export class VehiclesController {
   constructor(private vehiclesService: VehiclesService) {}
 
   @Get()
-  findAll() {
+  async findAll() {
     return this.vehiclesService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  async findOne(@Param('id') id: string) {
     return this.vehiclesService.findOne(id);
   }
 
   @Post()
-  create(@Body() createVehicleDto: any) {
+  async create(@Body() createVehicleDto: any) {
     return this.vehiclesService.create(createVehicleDto);
   }
 
   @Put(':id')
-  update(@Param('id') id: string, @Body() updateVehicleDto: any) {
+  async update(@Param('id') id: string, @Body() updateVehicleDto: any) {
     return this.vehiclesService.update(id, updateVehicleDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  async remove(@Param('id') id: string) {
     return this.vehiclesService.remove(id);
   }
 }
