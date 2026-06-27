@@ -1,0 +1,40 @@
+{
+  "name": "deploy",
+  "version": "1.0.0",
+  "description": "Deploy the application to production",
+  "author": "Claude Code",
+  "license": "MIT",
+  "tags": ["deploy", "production", "release", "ci-cd", "automation"],
+  "compatible_agents": [
+    "Claude Code",
+    "Antigravity",
+    "Codex",
+    "Cursor",
+    "GitHub Copilot"
+  ],
+  "capabilities": [
+    "Run test suite",
+    "Build application",
+    "Deploy to production",
+    "Rollback on failure",
+    "Health verification",
+    "Environment management"
+  ],
+  "configuration": {
+    "context": "fork",
+    "disable-model-invocation": true,
+    "timeout": 600000,
+    "require-approval": true
+  },
+  "requirements": {
+    "node": "18+",
+    "npm": "9+",
+    "git": "2.0+"
+  },
+  "environment-variables": [
+    "DEPLOYMENT_TARGET",
+    "API_KEY",
+    "ENVIRONMENT",
+    "LOG_LEVEL"
+  ]
+}

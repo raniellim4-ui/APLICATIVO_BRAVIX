@@ -1,0 +1,30 @@
+{
+  "name": "api-conventions",
+  "version": "1.0.0",
+  "description": "API design patterns for this codebase",
+  "author": "Claude Code",
+  "license": "MIT",
+  "tags": ["api", "rest", "conventions", "design", "endpoints"],
+  "compatible_agents": [
+    "Claude Code",
+    "Antigravity",
+    "Codex",
+    "Cursor",
+    "Gemini CLI",
+    "GitHub Copilot",
+    "Kimi Code CLI",
+    "OpenCode"
+  ],
+  "capabilities": [
+    "API design guidance",
+    "RESTful naming conventions",
+    "Error handling patterns",
+    "Request validation rules",
+    "Response format standardization",
+    "Rate limiting implementation",
+    "Authentication patterns"
+  ],
+  "requirements": {
+    "node": "18+"
+  }
+}

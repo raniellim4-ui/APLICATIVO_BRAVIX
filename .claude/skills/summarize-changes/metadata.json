@@ -1,0 +1,30 @@
+{
+  "name": "summarize-changes",
+  "version": "1.0.0",
+  "description": "Quickly summarize git changes, diffs, and project modifications",
+  "author": "Claude Code",
+  "license": "MIT",
+  "tags": ["git", "summary", "changes", "diff", "commits"],
+  "compatible_agents": [
+    "Claude Code",
+    "Antigravity",
+    "Codex",
+    "Cursor",
+    "Gemini CLI",
+    "GitHub Copilot",
+    "Kimi Code CLI",
+    "OpenCode"
+  ],
+  "capabilities": [
+    "Summarize git diffs",
+    "Generate commit messages",
+    "Create PR descriptions",
+    "Analyze code changes",
+    "Detect breaking changes",
+    "Track feature impacts"
+  ],
+  "requirements": {
+    "git": "2.0+",
+    "node": "18+"
+  }
+}
