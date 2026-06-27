@@ -1,0 +1,47 @@
+{
+  "name": "codebase-visualizer",
+  "version": "1.0.0",
+  "description": "Visualize codebase structure, dependencies, and architecture",
+  "author": "Claude Code",
+  "license": "MIT",
+  "tags": ["visualization", "architecture", "dependencies", "analysis", "codebase"],
+  "compatible_agents": [
+    "Claude Code",
+    "Explore"
+  ],
+  "capabilities": [
+    "Generate architecture diagrams",
+    "Map dependencies",
+    "Analyze connectivity",
+    "Project structure overview",
+    "File organization analysis",
+    "Dependency tracking",
+    "Component relationship mapping"
+  ],
+  "configuration": {
+    "context": "fork",
+    "agent": "Explore",
+    "timeout": 60000
+  },
+  "supported_languages": [
+    "JavaScript",
+    "TypeScript",
+    "Python",
+    "Java",
+    "Go",
+    "Rust",
+    "C/C++",
+    "PHP",
+    "Ruby",
+    "Swift"
+  ],
+  "output_formats": [
+    "markdown",
+    "mermaid",
+    "ascii",
+    "json"
+  ],
+  "requirements": {
+    "git": "2.0+"
+  }
+}
