@@ -1,0 +1,28 @@
+{
+  "name": "vehicle-inspection-app",
+  "version": "1.0.0",
+  "description": "Intelligent Vehicle Inspection Assistant - Enterprise Application",
+  "private": true,
+  "workspaces": [
+    "apps/backend",
+    "apps/mobile",
+    "apps/web",
+    "packages/shared-types",
+    "packages/shared-utils"
+  ],
+  "scripts": {
+    "install:all": "npm install --workspaces",
+    "backend": "npm run dev --workspace=apps/backend",
+    "mobile": "npm run start --workspace=apps/mobile",
+    "web": "npm run dev --workspace=apps/web",
+    "test": "npm run test --workspaces",
+    "lint": "npm run lint --workspaces",
+    "build": "npm run build --workspaces",
+    "db:migrate": "npm run migrate --workspace=apps/backend",
+    "db:seed": "npm run seed --workspace=apps/backend"
+  },
+  "engines": {
+    "node": ">=26.0.0",
+    "npm": ">=11.0.0"
+  }
+}
