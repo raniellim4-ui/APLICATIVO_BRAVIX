@@ -1,44 +1,51 @@
-import { Controller, Post, Body, UseGuards, Get, Request, BadRequestException } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  UseGuards,
+  Get,
+  Request,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { LoginDto, RegisterDto } from '@common/dto';
 
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
   @Post('login')
-  async login(@Body() body: { email: string; password: string }) {
-    if (!body.email || !body.password) {
-      throw new BadRequestException('Email and password are required');
-    }
-
-    return this.authService.login(body.email, body.password);
+  @HttpCode(HttpStatus.OK)
+  async login(@Body() loginDto: LoginDto) {
+    return this.authService.login(loginDto.email, loginDto.password);
   }
 
   @Post('register')
-  async register(
-    @Body() body: { email: string; password: string; name: string },
-  ) {
-    if (!body.email || !body.password || !body.name) {
-      throw new BadRequestException(
-        'Email, password, and name are required',
-      );
-    }
-
-    return this.authService.register(body.email, body.password, body.name);
+  @HttpCode(HttpStatus.CREATED)
+  async register(@Body() registerDto: RegisterDto) {
+    return this.authService.register(
+      registerDto.email,
+      registerDto.password,
+      registerDto.name,
+    );
   }
 
   @UseGuards(JwtAuthGuard)
   @Get('profile')
+  @HttpCode(HttpStatus.OK)
   getProfile(@Request() req: any) {
     return {
-      message: 'Profile fetched successfully',
+      message: 'Perfil recuperado com sucesso',
       user: req.user,
+      timestamp: new Date(),
     };
   }
 
   @UseGuards(JwtAuthGuard)
   @Post('refresh')
+  @HttpCode(HttpStatus.OK)
   async refreshToken(@Request() req: any) {
     const user = req.user;
     const newToken = await this.authService['jwtService'].sign({
@@ -49,8 +56,10 @@ export class AuthController {
     });
 
     return {
+      message: 'Token renovado com sucesso',
       access_token: newToken,
       user,
+      timestamp: new Date(),
     };
   }
 }

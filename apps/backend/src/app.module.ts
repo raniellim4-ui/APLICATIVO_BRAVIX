@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { APP_GUARD } from '@nestjs/core';
 import { AuthModule } from './modules/auth/auth.module';
 import { VehiclesModule } from './modules/vehicles/vehicles.module';
 import { DriversModule } from './modules/drivers/drivers.module';
@@ -8,6 +9,7 @@ import { InspectionsModule } from './modules/inspections/inspections.module';
 import { MaintenanceModule } from './modules/maintenance/maintenance.module';
 import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { HealthModule } from './modules/health/health.module';
+import { RolesGuard } from './common/guards/roles.guard';
 import {
   User,
   Vehicle,
@@ -42,6 +44,12 @@ import {
     MaintenanceModule,
     AnalyticsModule,
     HealthModule,
+  ],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
+    },
   ],
 })
 export class AppModule {}
