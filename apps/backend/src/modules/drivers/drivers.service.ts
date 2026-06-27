@@ -1,105 +1,55 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { v4 as uuidv4 } from 'uuid';
-
-interface Driver {
-  id: string;
-  name: string;
-  cnh: string;
-  phone: string;
-  email: string;
-  totalKm: number;
-  fuelExpense: number;
-  fuelEfficiency: number;
-  inspectionQualityScore: number;
-  createdAt: Date;
-}
+import { Injectable, NotFoundException, Inject } from '@nestjs/common';
+import { Repository } from 'typeorm';
+import { Driver } from '@database/entities';
 
 @Injectable()
 export class DriversService {
-  private drivers: Map<string, Driver> = new Map();
+  constructor(
+    @Inject('DRIVER_REPOSITORY')
+    private driverRepository: Repository<Driver>,
+  ) {}
 
-  constructor() {
-    this.initializeMockDrivers();
-  }
-
-  private initializeMockDrivers() {
-    const mockDrivers: Driver[] = [
-      {
-        id: uuidv4(),
-        name: 'João Silva',
-        cnh: '12345678901',
-        phone: '11 99999-8888',
-        email: 'joao@example.com',
-        totalKm: 45000,
-        fuelExpense: 2500,
-        fuelEfficiency: 4.5,
-        inspectionQualityScore: 4.8,
-        createdAt: new Date(),
-      },
-      {
-        id: uuidv4(),
-        name: 'Maria Santos',
-        cnh: '98765432101',
-        phone: '11 98888-7777',
-        email: 'maria@example.com',
-        totalKm: 78000,
-        fuelExpense: 4200,
-        fuelEfficiency: 4.2,
-        inspectionQualityScore: 4.6,
-        createdAt: new Date(),
-      },
-    ];
-
-    mockDrivers.forEach((driver) => {
-      this.drivers.set(driver.id, driver);
-    });
-  }
-
-  findAll() {
+  async findAll() {
+    const drivers = await this.driverRepository.find();
     return {
-      total: this.drivers.size,
-      drivers: Array.from(this.drivers.values()),
+      total: drivers.length,
+      drivers,
     };
   }
 
-  findOne(id: string) {
-    const driver = this.drivers.get(id);
+  async findOne(id: string) {
+    const driver = await this.driverRepository.findOne({ where: { id } });
     if (!driver) {
       throw new NotFoundException(`Driver with ID ${id} not found`);
     }
     return driver;
   }
 
-  create(createDriverDto: any) {
-    const id = uuidv4();
-    const driver: Driver = {
-      id,
+  async create(createDriverDto: any) {
+    const driver = this.driverRepository.create({
       ...createDriverDto,
       totalKm: 0,
       fuelExpense: 0,
       fuelEfficiency: 0,
       inspectionQualityScore: 5,
-      createdAt: new Date(),
-    };
-    this.drivers.set(id, driver);
-    return driver;
+    });
+    return await this.driverRepository.save(driver);
   }
 
-  update(id: string, updateDriverDto: any) {
-    const driver = this.findOne(id);
+  async update(id: string, updateDriverDto: any) {
+    const driver = await this.findOne(id);
     const updated = { ...driver, ...updateDriverDto };
-    this.drivers.set(id, updated);
-    return updated;
+    return await this.driverRepository.save(updated);
   }
 
-  remove(id: string) {
-    const driver = this.findOne(id);
-    this.drivers.delete(id);
+  async remove(id: string) {
+    const driver = await this.findOne(id);
+    await this.driverRepository.remove(driver);
     return { message: 'Driver deleted successfully', driver };
   }
 
-  getDashboard(id: string) {
-    const driver = this.findOne(id);
+  async getDashboard(id: string) {
+    const driver = await this.findOne(id);
     return {
       driver,
       stats: {

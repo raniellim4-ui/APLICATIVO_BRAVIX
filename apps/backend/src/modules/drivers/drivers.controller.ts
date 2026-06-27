@@ -8,32 +8,32 @@ export class DriversController {
   constructor(private driversService: DriversService) {}
 
   @Get()
-  findAll() {
+  async findAll() {
     return this.driversService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  async findOne(@Param('id') id: string) {
     return this.driversService.findOne(id);
   }
 
   @Post()
-  create(@Body() createDriverDto: any) {
+  async create(@Body() createDriverDto: any) {
     return this.driversService.create(createDriverDto);
   }
 
   @Put(':id')
-  update(@Param('id') id: string, @Body() updateDriverDto: any) {
+  async update(@Param('id') id: string, @Body() updateDriverDto: any) {
     return this.driversService.update(id, updateDriverDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  async remove(@Param('id') id: string) {
     return this.driversService.remove(id);
   }
 
   @Get(':id/dashboard')
-  getDashboard(@Param('id') id: string) {
+  async getDashboard(@Param('id') id: string) {
     return this.driversService.getDashboard(id);
   }
 }
