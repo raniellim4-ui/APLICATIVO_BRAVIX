@@ -1,1 +1,1 @@
-Quick start guide for APLICATIVO-BRAVIX development
+This is a guide for APLICATIVO-BRAVIX quickstart
