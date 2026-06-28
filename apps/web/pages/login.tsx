@@ -39,77 +39,118 @@ export default function LoginPage() {
   return (
     <>
       <Head>
-        <title>Entrar - Vehicle Inspection</title>
+        <title>Entrar — BRAVIX Fleet</title>
       </Head>
-      <main className="min-h-screen flex items-center justify-center bg-slate-100 dark:bg-slate-950 px-4">
-        <div className="w-full max-w-md bg-white dark:bg-slate-900 rounded-2xl shadow-xl p-8">
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
-            Painel de Inspeção Veicular
-          </h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 mb-6">
-            Entre com sua conta para acessar o dashboard
-          </p>
+      <main className="grid min-h-screen lg:grid-cols-2">
+        {/* Left / brand panel */}
+        <section className="relative hidden flex-col justify-between overflow-hidden border-r p-12 lg:flex">
+          <div className="absolute inset-0 -z-10 bg-[radial-gradient(700px_circle_at_30%_20%,rgba(245,165,36,0.10),transparent_60%)]" />
+          <div className="flex items-center gap-3">
+            <div className="grid h-9 w-9 place-items-center rounded-md bg-[var(--amber)] font-display text-lg font-extrabold text-[#0a0b0d]">
+              B
+            </div>
+            <span className="font-display text-lg font-bold tracking-tight">
+              BRAVIX<span className="text-amber"> FLEET</span>
+            </span>
+          </div>
 
-          <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
+          <div className="max-w-md">
+            <p className="label-eyebrow mb-4">Sistema de inspeção veicular</p>
+            <h1 className="text-5xl font-extrabold leading-[1.05]">
+              Controle total da sua{' '}
+              <span className="text-amber">frota</span>, em tempo real.
+            </h1>
+            <p className="mt-5 leading-relaxed text-muted">
+              Inspeções, saúde dos veículos, motoristas e manutenção — centralizados
+              em um só painel de comando.
+            </p>
+          </div>
+
+          <div className="flex gap-8 font-mono text-sm text-muted">
             <div>
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1"
-              >
-                E-mail
-              </label>
-              <input
-                id="email"
-                type="email"
-                autoComplete="email"
-                placeholder="seu@email.com"
-                {...register('email')}
-                className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-600"
-              />
-              {errors.email && (
-                <p className="text-sm text-red-600 mt-1">{errors.email.message}</p>
-              )}
+              <div className="text-2xl font-bold text-[var(--text)]">30+</div>
+              endpoints
+            </div>
+            <div>
+              <div className="text-2xl font-bold text-[var(--text)]">RBAC</div>
+              4 perfis
+            </div>
+            <div>
+              <div className="text-2xl font-bold text-[var(--text)]">JWT</div>
+              seguro
+            </div>
+          </div>
+        </section>
+
+        {/* Right / form */}
+        <section className="flex items-center justify-center p-6">
+          <div className="w-full max-w-sm">
+            <div className="mb-8 lg:hidden">
+              <span className="font-display text-xl font-bold">
+                BRAVIX<span className="text-amber"> FLEET</span>
+              </span>
             </div>
 
-            <div>
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1"
-              >
-                Senha
-              </label>
-              <input
-                id="password"
-                type="password"
-                autoComplete="current-password"
-                placeholder="••••••••"
-                {...register('password')}
-                className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-600"
-              />
-              {errors.password && (
-                <p className="text-sm text-red-600 mt-1">{errors.password.message}</p>
+            <p className="label-eyebrow mb-2">Acesso restrito</p>
+            <h2 className="mb-1 text-3xl font-bold">Entrar</h2>
+            <p className="mb-8 text-sm text-muted">
+              Use suas credenciais para acessar o painel.
+            </p>
+
+            <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-5">
+              <div>
+                <label htmlFor="email" className="label-eyebrow mb-2 block">
+                  E-mail
+                </label>
+                <input
+                  id="email"
+                  type="email"
+                  autoComplete="email"
+                  placeholder="seu@email.com"
+                  {...register('email')}
+                  className="field"
+                />
+                {errors.email && (
+                  <p className="mt-1.5 text-sm text-red-400">{errors.email.message}</p>
+                )}
+              </div>
+
+              <div>
+                <label htmlFor="password" className="label-eyebrow mb-2 block">
+                  Senha
+                </label>
+                <input
+                  id="password"
+                  type="password"
+                  autoComplete="current-password"
+                  placeholder="••••••••"
+                  {...register('password')}
+                  className="field"
+                />
+                {errors.password && (
+                  <p className="mt-1.5 text-sm text-red-400">
+                    {errors.password.message}
+                  </p>
+                )}
+              </div>
+
+              {formError && (
+                <p className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-300">
+                  {formError}
+                </p>
               )}
+
+              <button type="submit" disabled={isSubmitting} className="btn-amber w-full">
+                {isSubmitting ? 'Entrando...' : 'Entrar →'}
+              </button>
+            </form>
+
+            <div className="mt-8 rounded-lg border border-dashed px-4 py-3 font-mono text-xs text-muted">
+              <span className="text-amber">demo</span> · admin@vehicleinspection.com /
+              Admin@123456
             </div>
-
-            {formError && (
-              <p className="text-sm text-red-600 bg-red-50 dark:bg-red-950/40 rounded-lg px-3 py-2">
-                {formError}
-              </p>
-            )}
-
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full rounded-lg bg-blue-600 px-4 py-2 font-semibold text-white transition hover:bg-blue-700 disabled:opacity-60"
-            >
-              {isSubmitting ? 'Entrando...' : 'Entrar'}
-            </button>
-          </form>
-
-          <p className="text-xs text-slate-400 mt-6 text-center">
-            Conta de teste: admin@vehicleinspection.com / Admin@123456
-          </p>
-        </div>
+          </div>
+        </section>
       </main>
     </>
   );

@@ -35,7 +35,7 @@ export function PrimaryButton({
       {...rest}
     >
       {loading ? (
-        <ActivityIndicator color={isGhost ? colors.primary : colors.text} />
+        <ActivityIndicator color={isGhost ? colors.primary : colors.onPrimary} />
       ) : (
         <Text style={[styles.text, isGhost && styles.ghostText]}>{title}</Text>
       )}
@@ -58,9 +58,9 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   text: {
-    color: colors.text,
+    color: colors.onPrimary,
     fontSize: 16,
-    fontWeight: '700',
+    fontWeight: '800',
   },
   ghostText: {
     color: colors.primary,

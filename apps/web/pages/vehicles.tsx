@@ -14,9 +14,9 @@ interface Vehicle {
 }
 
 function healthClasses(score: number): string {
-  if (score >= 85) return 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300';
-  if (score >= 70) return 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300';
-  return 'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300';
+  if (score >= 85) return 'border-green-500/30 bg-green-500/10 text-green-300';
+  if (score >= 70) return 'border-amber-500/30 bg-amber-500/10 text-amber-300';
+  return 'border-red-500/30 bg-red-500/10 text-red-300';
 }
 
 export default function VehiclesPage() {
@@ -33,95 +33,80 @@ export default function VehiclesPage() {
   return (
     <>
       <Head>
-        <title>Veículos - Vehicle Inspection</title>
+        <title>Veículos — BRAVIX Fleet</title>
       </Head>
-      <main className="min-h-screen bg-slate-50 dark:bg-slate-950">
-        <div className="container mx-auto py-8 px-4">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <Link
-                href="/"
-                className="text-sm text-blue-600 hover:underline"
-              >
-                ‹ Voltar ao dashboard
-              </Link>
-              <h1 className="text-3xl font-bold mt-1">Veículos</h1>
-            </div>
-            <button
-              onClick={() => refetch()}
-              disabled={isFetching}
-              className="rounded-lg border border-slate-300 dark:border-slate-700 px-4 py-2 text-sm font-medium transition hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-60"
-            >
-              {isFetching ? 'Atualizando...' : 'Atualizar'}
+      <main className="mx-auto max-w-6xl px-6 py-10">
+        <div className="mb-8 flex items-end justify-between">
+          <div>
+            <Link href="/" className="font-mono text-xs text-amber hover:underline">
+              ← dashboard
+            </Link>
+            <p className="label-eyebrow mb-1 mt-3">Frota</p>
+            <h1 className="text-4xl font-extrabold">Veículos</h1>
+          </div>
+          <button
+            onClick={() => refetch()}
+            disabled={isFetching}
+            className="btn-ghost text-sm"
+          >
+            {isFetching ? 'Atualizando…' : '↻ Atualizar'}
+          </button>
+        </div>
+
+        {isLoading ? (
+          <div className="flex justify-center py-24">
+            <div className="h-9 w-9 animate-spin rounded-full border-[3px] border-[var(--amber)] border-t-transparent" />
+          </div>
+        ) : isError ? (
+          <div className="panel p-8 text-center">
+            <p className="mb-4 text-red-300">Não foi possível carregar os veículos.</p>
+            <button onClick={() => refetch()} className="btn-amber">
+              Tentar novamente
             </button>
           </div>
-
-          {isLoading ? (
-            <div className="flex justify-center py-20">
-              <div className="h-10 w-10 animate-spin rounded-full border-4 border-blue-600 border-t-transparent" />
+        ) : vehicles.length === 0 ? (
+          <div className="panel p-12 text-center text-muted">
+            Nenhum veículo cadastrado.
+          </div>
+        ) : (
+          <>
+            <div className="stagger grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {vehicles.map((v) => {
+                const score = Number(v.healthScore) || 0;
+                return (
+                  <div
+                    key={v.id}
+                    className="panel p-5 transition hover:border-[var(--border-strong)] hover:bg-white/[0.03]"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="font-mono text-lg font-bold tracking-widest">
+                        {v.plate}
+                      </span>
+                      <span
+                        className={`rounded-md border px-2 py-0.5 font-mono text-xs font-bold ${healthClasses(score)}`}
+                      >
+                        {score.toFixed(0)}%
+                      </span>
+                    </div>
+                    <div className="mt-3 font-display text-lg font-bold">
+                      {v.make}
+                    </div>
+                    <div className="text-sm text-muted">{v.model}</div>
+                    <div className="mt-4 flex items-center justify-between border-t pt-3 font-mono text-xs text-muted">
+                      <span>ANO {v.year}</span>
+                      <span>{Number(v.currentKm).toLocaleString('pt-BR')} KM</span>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
-          ) : isError ? (
-            <div className="rounded-lg bg-red-50 dark:bg-red-950/40 p-6 text-center">
-              <p className="text-red-700 dark:text-red-300 mb-3">
-                Não foi possível carregar os veículos.
+            {data && (
+              <p className="mt-6 font-mono text-xs text-muted">
+                {data.total} veículo(s) na frota
               </p>
-              <button
-                onClick={() => refetch()}
-                className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
-              >
-                Tentar novamente
-              </button>
-            </div>
-          ) : vehicles.length === 0 ? (
-            <div className="rounded-lg bg-white dark:bg-slate-900 p-10 text-center text-slate-500">
-              Nenhum veículo cadastrado.
-            </div>
-          ) : (
-            <div className="overflow-hidden rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
-              <table className="w-full text-left text-sm">
-                <thead className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
-                  <tr>
-                    <th className="px-4 py-3 font-semibold">Placa</th>
-                    <th className="px-4 py-3 font-semibold">Marca / Modelo</th>
-                    <th className="px-4 py-3 font-semibold">Ano</th>
-                    <th className="px-4 py-3 font-semibold">KM atual</th>
-                    <th className="px-4 py-3 font-semibold">Saúde</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                  {vehicles.map((v) => {
-                    const score = Number(v.healthScore) || 0;
-                    return (
-                      <tr key={v.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
-                        <td className="px-4 py-3 font-semibold tracking-wide">{v.plate}</td>
-                        <td className="px-4 py-3">
-                          {v.make} {v.model}
-                        </td>
-                        <td className="px-4 py-3">{v.year}</td>
-                        <td className="px-4 py-3">
-                          {Number(v.currentKm).toLocaleString('pt-BR')} km
-                        </td>
-                        <td className="px-4 py-3">
-                          <span
-                            className={`inline-flex rounded-full px-2.5 py-1 text-xs font-bold ${healthClasses(score)}`}
-                          >
-                            {score.toFixed(0)}%
-                          </span>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          )}
-
-          {data && (
-            <p className="mt-4 text-sm text-slate-500">
-              Total: {data.total} veículo(s)
-            </p>
-          )}
-        </div>
+            )}
+          </>
+        )}
       </main>
     </>
   );

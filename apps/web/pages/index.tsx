@@ -1,6 +1,9 @@
 import Head from 'next/head';
+import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/lib/auth-context';
+import { vehiclesApi } from '@/lib/api';
 
 const roleLabels: Record<string, string> = {
   admin: 'Administrador',
@@ -9,142 +12,137 @@ const roleLabels: Record<string, string> = {
   mechanic: 'Mecânico',
 };
 
+function Stat({
+  label,
+  value,
+  hint,
+  accent,
+}: {
+  label: string;
+  value: string;
+  hint: string;
+  accent?: boolean;
+}) {
+  return (
+    <div className="panel p-5">
+      <div className="label-eyebrow">{label}</div>
+      <div
+        className={`mt-3 font-mono text-4xl font-bold ${accent ? 'text-amber' : ''}`}
+      >
+        {value}
+      </div>
+      <div className="mt-2 text-xs text-muted">{hint}</div>
+    </div>
+  );
+}
+
 export default function Dashboard() {
   const { user, logout } = useAuth();
   const router = useRouter();
+
+  const { data } = useQuery({
+    queryKey: ['vehicles'],
+    queryFn: async () => {
+      const res = await vehiclesApi.getAll();
+      return res.data as { total: number; vehicles: any[] };
+    },
+  });
 
   const onLogout = () => {
     logout();
     router.replace('/login');
   };
 
+  const total = data?.total;
+  const avgHealth =
+    data && data.vehicles.length
+      ? Math.round(
+          data.vehicles.reduce((s, v) => s + (Number(v.healthScore) || 0), 0) /
+            data.vehicles.length,
+        )
+      : undefined;
+
   return (
     <>
       <Head>
-        <title>Dashboard - Vehicle Inspection</title>
-        <meta name="description" content="Fleet management dashboard" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" href="/favicon.ico" />
+        <title>Painel — BRAVIX Fleet</title>
+        <meta name="description" content="Fleet management control room" />
       </Head>
 
-      <main className="min-h-screen bg-slate-50 dark:bg-slate-950">
-        <div className="container mx-auto py-8">
-          <div className="flex items-center justify-between mb-8">
-            <h1 className="text-4xl font-bold">Vehicle Inspection Dashboard</h1>
-            <div className="flex items-center gap-4">
-              {user && (
-                <div className="text-right">
-                  <div className="text-sm font-semibold text-slate-900 dark:text-white">
-                    {user.name}
-                  </div>
-                  <div className="text-xs text-slate-500">
-                    {roleLabels[user.role] ?? user.role}
-                  </div>
+      <header className="sticky top-0 z-10 border-b bg-[var(--bg)]/80 backdrop-blur">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+          <div className="flex items-center gap-3">
+            <div className="grid h-8 w-8 place-items-center rounded-md bg-[var(--amber)] font-display text-base font-extrabold text-[#0a0b0d]">
+              B
+            </div>
+            <span className="font-display text-base font-bold tracking-tight">
+              BRAVIX<span className="text-amber"> FLEET</span>
+            </span>
+          </div>
+          <div className="flex items-center gap-4">
+            {user && (
+              <div className="text-right">
+                <div className="text-sm font-semibold">{user.name}</div>
+                <div className="font-mono text-[11px] uppercase tracking-wider text-amber">
+                  {roleLabels[user.role] ?? user.role}
                 </div>
-              )}
-              <button
-                onClick={onLogout}
-                className="rounded-lg border border-slate-300 dark:border-slate-700 px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 transition hover:bg-slate-100 dark:hover:bg-slate-800"
-              >
-                Sair
-              </button>
-            </div>
+              </div>
+            )}
+            <button onClick={onLogout} className="btn-ghost text-sm">
+              Sair
+            </button>
           </div>
+        </div>
+      </header>
 
-          {/* Dashboard Overview */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            {/* Fleet Status Card */}
-            <div className="bg-white dark:bg-slate-900 rounded-lg shadow p-6">
-              <div className="text-gray-500 text-sm font-medium">Total Vehicles</div>
-              <div className="mt-2 text-3xl font-bold">10</div>
-              <div className="text-green-600 text-sm mt-2">✅ All active</div>
-            </div>
+      <main className="mx-auto max-w-6xl px-6 py-10">
+        <div className="mb-8">
+          <p className="label-eyebrow mb-2">Centro de comando</p>
+          <h1 className="text-4xl font-extrabold">
+            Olá, {user?.name?.split(' ')[0] ?? 'operador'}.
+          </h1>
+          <p className="mt-2 text-muted">Visão geral da frota e operações.</p>
+        </div>
 
-            {/* Inspections Card */}
-            <div className="bg-white dark:bg-slate-900 rounded-lg shadow p-6">
-              <div className="text-gray-500 text-sm font-medium">Inspections (Month)</div>
-              <div className="mt-2 text-3xl font-bold">156</div>
-              <div className="text-blue-600 text-sm mt-2">📊 Avg 15.6/day</div>
-            </div>
+        <div className="stagger mb-10 grid grid-cols-2 gap-4 lg:grid-cols-4">
+          <Stat
+            label="Veículos"
+            value={total !== undefined ? String(total) : '—'}
+            hint="na frota"
+            accent
+          />
+          <Stat
+            label="Saúde média"
+            value={avgHealth !== undefined ? `${avgHealth}%` : '—'}
+            hint="índice da frota"
+          />
+          <Stat label="Inspeções / mês" value="156" hint="média 15,6/dia" />
+          <Stat label="Manutenções" value="3" hint="previstas esta semana" />
+        </div>
 
-            {/* Drivers Card */}
-            <div className="bg-white dark:bg-slate-900 rounded-lg shadow p-6">
-              <div className="text-gray-500 text-sm font-medium">Active Drivers</div>
-              <div className="mt-2 text-3xl font-bold">8</div>
-              <div className="text-purple-600 text-sm mt-2">👥 On duty</div>
+        <div className="grid gap-4 lg:grid-cols-3">
+          <Link
+            href="/vehicles"
+            className="panel group flex items-center justify-between p-6 transition hover:border-[var(--border-strong)] hover:bg-white/[0.03]"
+          >
+            <div>
+              <div className="font-display text-lg font-bold">Veículos</div>
+              <div className="mt-1 text-sm text-muted">
+                Frota cadastrada, placas e saúde
+              </div>
             </div>
+            <span className="text-2xl text-amber transition group-hover:translate-x-1">
+              →
+            </span>
+          </Link>
 
-            {/* Maintenance Card */}
-            <div className="bg-white dark:bg-slate-900 rounded-lg shadow p-6">
-              <div className="text-gray-500 text-sm font-medium">Maintenance Due</div>
-              <div className="mt-2 text-3xl font-bold">3</div>
-              <div className="text-orange-600 text-sm mt-2">⚠️ This week</div>
-            </div>
+          <div className="panel p-6 opacity-70">
+            <div className="font-display text-lg font-bold">Inspeções</div>
+            <div className="mt-1 text-sm text-muted">Em breve</div>
           </div>
-
-          {/* Feature Overview */}
-          <div className="bg-white dark:bg-slate-900 rounded-lg shadow p-8">
-            <h2 className="text-2xl font-bold mb-6">Dashboard Features</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <div>
-                <h3 className="font-semibold mb-2">🚗 Fleet Management</h3>
-                <p className="text-gray-600 dark:text-gray-400 text-sm">
-                  Track all vehicles, health scores, and maintenance schedules
-                </p>
-              </div>
-              <div>
-                <h3 className="font-semibold mb-2">👥 Driver Analytics</h3>
-                <p className="text-gray-600 dark:text-gray-400 text-sm">
-                  Monitor driver performance, quality scores, and inspection metrics
-                </p>
-              </div>
-              <div>
-                <h3 className="font-semibold mb-2">📋 Inspection Records</h3>
-                <p className="text-gray-600 dark:text-gray-400 text-sm">
-                  Complete inspection history with photos and damage reports
-                </p>
-              </div>
-              <div>
-                <h3 className="font-semibold mb-2">📊 Advanced Analytics</h3>
-                <p className="text-gray-600 dark:text-gray-400 text-sm">
-                  Fleet trends, cost analysis, and KPI dashboards
-                </p>
-              </div>
-              <div>
-                <h3 className="font-semibold mb-2">⚙️ Admin Settings</h3>
-                <p className="text-gray-600 dark:text-gray-400 text-sm">
-                  User management, permissions, and system configuration
-                </p>
-              </div>
-              <div>
-                <h3 className="font-semibold mb-2">🔐 Role-Based Access</h3>
-                <p className="text-gray-600 dark:text-gray-400 text-sm">
-                  Secure authentication with granular permission control
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Getting Started */}
-          <div className="bg-blue-50 dark:bg-blue-950 rounded-lg p-8 mt-8">
-            <h2 className="text-2xl font-bold mb-4">🚀 Getting Started</h2>
-            <p className="text-gray-700 dark:text-gray-300 mb-4">
-              This is your professional admin dashboard for vehicle fleet management.
-            </p>
-            <div className="flex gap-4">
-              <a
-                href="/vehicles"
-                className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition"
-              >
-                View Vehicles
-              </a>
-              <a
-                href="/drivers"
-                className="bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700 transition"
-              >
-                Manage Drivers
-              </a>
-            </div>
+          <div className="panel p-6 opacity-70">
+            <div className="font-display text-lg font-bold">Manutenção</div>
+            <div className="mt-1 text-sm text-muted">Em breve</div>
           </div>
         </div>
       </main>
