@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/lib/auth-context';
 import { BrandLogo } from '@/components/BrandLogo';
-import { vehiclesApi } from '@/lib/api';
+import { vehiclesApi, inspectionsApi } from '@/lib/api';
 
 const roleLabels: Record<string, string> = {
   admin: 'Administrador',
@@ -49,6 +49,14 @@ export default function Dashboard() {
     },
   });
 
+  const { data: inspData } = useQuery({
+    queryKey: ['inspections'],
+    queryFn: async () => {
+      const res = await inspectionsApi.getAll();
+      return res.data as { total: number; inspections: any[] };
+    },
+  });
+
   const onLogout = () => {
     logout();
     router.replace('/login');
@@ -62,6 +70,11 @@ export default function Dashboard() {
             data.vehicles.length,
         )
       : undefined;
+
+  const inspTotal = inspData?.total;
+  const inspCompleted = inspData?.inspections.filter(
+    (i) => i.status === 'completed' || i.status === 'approved',
+  ).length;
 
   return (
     <>
@@ -112,7 +125,15 @@ export default function Dashboard() {
             value={avgHealth !== undefined ? `${avgHealth}%` : '—'}
             hint="índice da frota"
           />
-          <Stat label="Inspeções / mês" value="156" hint="média 15,6/dia" />
+          <Stat
+            label="Inspeções"
+            value={inspTotal !== undefined ? String(inspTotal) : '—'}
+            hint={
+              inspCompleted !== undefined
+                ? `${inspCompleted} concluída(s)`
+                : 'registradas'
+            }
+          />
           <Stat label="Manutenções" value="3" hint="previstas esta semana" />
         </div>
 
