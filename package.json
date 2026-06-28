@@ -21,6 +21,10 @@
     "db:migrate": "npm run migrate --workspace=apps/backend",
     "db:seed": "npm run seed --workspace=apps/backend"
   },
+  "overrides": {
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
+  },
   "engines": {
     "node": ">=26.0.0",
     "npm": ">=11.0.0"
