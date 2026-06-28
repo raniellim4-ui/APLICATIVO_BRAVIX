@@ -34,7 +34,7 @@ import {
       database: process.env.DB_NAME || 'vehicle_inspection_dev',
       entities: [User, Vehicle, Driver, Inspection, MaintenanceSchedule],
       migrations: ['dist/database/migrations/*.js'],
-      migrationsRun: false,
+      migrationsRun: true,
       synchronize: false,
       logging: process.env.DB_LOGGING === 'true',
     }),
