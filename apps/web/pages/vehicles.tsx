@@ -74,9 +74,10 @@ export default function VehiclesPage() {
               {vehicles.map((v) => {
                 const score = Number(v.healthScore) || 0;
                 return (
-                  <div
+                  <Link
                     key={v.id}
-                    className="panel p-5 transition hover:border-[var(--border-strong)] hover:bg-white/[0.03]"
+                    href={`/vehicles/${v.id}`}
+                    className="panel block p-5 transition hover:border-[var(--border-strong)] hover:bg-white/[0.03]"
                   >
                     <div className="flex items-center justify-between">
                       <span className="font-mono text-lg font-bold tracking-widest">
@@ -96,7 +97,7 @@ export default function VehiclesPage() {
                       <span>ANO {v.year}</span>
                       <span>{Number(v.currentKm).toLocaleString('pt-BR')} KM</span>
                     </div>
-                  </div>
+                  </Link>
                 );
               })}
             </div>

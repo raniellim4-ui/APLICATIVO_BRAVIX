@@ -19,10 +19,16 @@ function healthColor(score: number): string {
   return colors.danger;
 }
 
-function VehicleCard({ vehicle }: { vehicle: Vehicle }) {
+function VehicleCard({
+  vehicle,
+  onPress,
+}: {
+  vehicle: Vehicle;
+  onPress: () => void;
+}) {
   const score = Number(vehicle.healthScore) || 0;
   return (
-    <View style={styles.card}>
+    <TouchableOpacity onPress={onPress} activeOpacity={0.85} style={styles.card}>
       <View style={styles.cardHeader}>
         <Text style={styles.plate}>{vehicle.plate}</Text>
         <View style={[styles.badge, { backgroundColor: healthColor(score) }]}>
@@ -38,7 +44,7 @@ function VehicleCard({ vehicle }: { vehicle: Vehicle }) {
           {Number(vehicle.currentKm).toLocaleString('pt-BR')} km
         </Text>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 }
 
@@ -98,7 +104,12 @@ export default function VehiclesScreen() {
         <FlatList
           data={vehicles}
           keyExtractor={(item) => item.id}
-          renderItem={({ item }) => <VehicleCard vehicle={item} />}
+          renderItem={({ item }) => (
+            <VehicleCard
+              vehicle={item}
+              onPress={() => router.push(`/(app)/vehicles/${item.id}`)}
+            />
+          )}
           contentContainerStyle={styles.list}
           refreshControl={
             <RefreshControl

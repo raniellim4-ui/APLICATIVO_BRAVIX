@@ -13,7 +13,16 @@ export interface Vehicle {
   year: number;
   currentKm: number;
   healthScore: number;
-  lastInspectionAt: string;
+  lastInspectionAt?: string | null;
+  vin?: string;
+  crlvNumber?: string | null;
+  renavam?: string | null;
+  registrationDate?: string;
+  purchasePrice?: number | string | null;
+  expectedLifespanYears?: number | null;
+  isActive?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface Inspection {

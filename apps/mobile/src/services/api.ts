@@ -87,6 +87,11 @@ class ApiService {
     return response.data;
   }
 
+  async getMaintenanceAlerts(vehicleId: string) {
+    const response = await this.api.get(`/maintenance/vehicle/${vehicleId}/alerts`);
+    return response.data;
+  }
+
   // Inspection endpoints
   async createInspection(data: any) {
     const response = await this.api.post('/inspections', data);

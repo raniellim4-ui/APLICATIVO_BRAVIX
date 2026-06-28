@@ -74,10 +74,19 @@ export const driversApi = {
 export const inspectionsApi = {
   getAll: () => api.get('/inspections'),
   getOne: (id: string) => api.get(`/inspections/${id}`),
+  getByVehicle: (vehicleId: string) => api.get(`/inspections/vehicle/${vehicleId}`),
   create: (data: any) => api.post('/inspections', data),
   addPhotos: (id: string, photos: any) =>
     api.post(`/inspections/${id}/photos`, photos),
   submit: (id: string) => api.post(`/inspections/${id}/submit`),
+};
+
+// Maintenance API
+export const maintenanceApi = {
+  getScheduleByVehicle: (vehicleId: string) =>
+    api.get(`/maintenance/vehicle/${vehicleId}`),
+  getAlertsByVehicle: (vehicleId: string) =>
+    api.get(`/maintenance/vehicle/${vehicleId}/alerts`),
 };
 
 // Analytics API
