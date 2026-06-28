@@ -132,10 +132,21 @@ export default function Dashboard() {
             </span>
           </Link>
 
-          <div className="panel p-6 opacity-70">
-            <div className="font-display text-lg font-bold">Inspeções</div>
-            <div className="mt-1 text-sm text-muted">Em breve</div>
-          </div>
+          <Link
+            href="/inspections"
+            className="panel group flex items-center justify-between p-6 transition hover:border-[var(--border-strong)] hover:bg-white/[0.03]"
+          >
+            <div>
+              <div className="font-display text-lg font-bold">Inspeções</div>
+              <div className="mt-1 text-sm text-muted">
+                Registros, fotos e qualidade
+              </div>
+            </div>
+            <span className="text-2xl text-amber transition group-hover:translate-x-1">
+              →
+            </span>
+          </Link>
+
           <div className="panel p-6 opacity-70">
             <div className="font-display text-lg font-bold">Manutenção</div>
             <div className="mt-1 text-sm text-muted">Em breve</div>
