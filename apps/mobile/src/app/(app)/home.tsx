@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAuth } from '@hooks/useAuth';
 import { PrimaryButton } from '@components/PrimaryButton';
@@ -34,11 +34,17 @@ export default function HomeScreen() {
         </Text>
       </View>
 
-      <View style={styles.placeholder}>
-        <Text style={styles.placeholderText}>
-          As telas de veículos e inspeção serão adicionadas nas próximas etapas.
-        </Text>
-      </View>
+      <TouchableOpacity
+        style={styles.actionCard}
+        activeOpacity={0.85}
+        onPress={() => router.push('/(app)/vehicles')}
+      >
+        <View>
+          <Text style={styles.actionTitle}>Veículos</Text>
+          <Text style={styles.actionSubtitle}>Ver a frota cadastrada</Text>
+        </View>
+        <Text style={styles.actionArrow}>›</Text>
+      </TouchableOpacity>
 
       <PrimaryButton title="Sair" variant="ghost" onPress={onLogout} />
     </ScrollView>
@@ -83,15 +89,28 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginBottom: spacing.md,
   },
-  placeholder: {
+  actionCard: {
     backgroundColor: colors.surfaceAlt,
     borderRadius: radius.lg,
     padding: spacing.lg,
     marginBottom: spacing.lg,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
-  placeholderText: {
+  actionTitle: {
+    color: colors.text,
+    fontSize: 17,
+    fontWeight: '700',
+  },
+  actionSubtitle: {
     color: colors.textMuted,
-    fontSize: 14,
-    lineHeight: 20,
+    fontSize: 13,
+    marginTop: 2,
+  },
+  actionArrow: {
+    color: colors.primary,
+    fontSize: 28,
+    fontWeight: '700',
   },
 });
