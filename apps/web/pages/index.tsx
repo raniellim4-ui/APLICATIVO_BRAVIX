@@ -1,6 +1,23 @@
 import Head from 'next/head';
+import { useRouter } from 'next/router';
+import { useAuth } from '@/lib/auth-context';
+
+const roleLabels: Record<string, string> = {
+  admin: 'Administrador',
+  manager: 'Gestor de Frota',
+  driver: 'Motorista',
+  mechanic: 'Mecânico',
+};
 
 export default function Dashboard() {
+  const { user, logout } = useAuth();
+  const router = useRouter();
+
+  const onLogout = () => {
+    logout();
+    router.replace('/login');
+  };
+
   return (
     <>
       <Head>
@@ -12,7 +29,27 @@ export default function Dashboard() {
 
       <main className="min-h-screen bg-slate-50 dark:bg-slate-950">
         <div className="container mx-auto py-8">
-          <h1 className="text-4xl font-bold mb-8">Vehicle Inspection Dashboard</h1>
+          <div className="flex items-center justify-between mb-8">
+            <h1 className="text-4xl font-bold">Vehicle Inspection Dashboard</h1>
+            <div className="flex items-center gap-4">
+              {user && (
+                <div className="text-right">
+                  <div className="text-sm font-semibold text-slate-900 dark:text-white">
+                    {user.name}
+                  </div>
+                  <div className="text-xs text-slate-500">
+                    {roleLabels[user.role] ?? user.role}
+                  </div>
+                </div>
+              )}
+              <button
+                onClick={onLogout}
+                className="rounded-lg border border-slate-300 dark:border-slate-700 px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 transition hover:bg-slate-100 dark:hover:bg-slate-800"
+              >
+                Sair
+              </button>
+            </div>
+          </div>
 
           {/* Dashboard Overview */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
