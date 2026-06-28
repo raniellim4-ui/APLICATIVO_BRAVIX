@@ -93,6 +93,11 @@ class ApiService {
   }
 
   // Inspection endpoints
+  async getInspections() {
+    const response = await this.api.get('/inspections');
+    return response.data;
+  }
+
   async createInspection(data: any) {
     const response = await this.api.post('/inspections', data);
     return response.data;
