@@ -1,6 +1,7 @@
 import { DataSource } from 'typeorm';
 import * as bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
+import { AppDataSource } from '../data-source';
 import {
   User,
   Vehicle,
@@ -16,6 +17,15 @@ export async function seedDatabase(dataSource: DataSource) {
   const inspectionRepository = dataSource.getRepository(Inspection);
   const maintenanceRepository =
     dataSource.getRepository(MaintenanceSchedule);
+
+  // Idempotência: não duplicar dados se já houver veículos
+  const existing = await vehicleRepository.count();
+  if (existing > 0) {
+    console.log(
+      `ℹ️  Seed ignorado: já existem ${existing} veículo(s) no banco.`,
+    );
+    return;
+  }
 
   const companyId = uuidv4();
 
@@ -85,7 +95,64 @@ export async function seedDatabase(dataSource: DataSource) {
     expectedLifespanYears: 10,
   });
 
-  await vehicleRepository.save([vehicle1, vehicle2]);
+  const vehicle3 = vehicleRepository.create({
+    companyId,
+    plate: 'BRA-2E19',
+    crlvNumber: '4567891230',
+    renavam: '45678912301',
+    model: 'Mercedes-Benz Actros',
+    make: 'Mercedes-Benz',
+    year: 2024,
+    vin: 'WDB9634031L987654',
+    registrationDate: new Date('2024-02-10'),
+    currentKm: 12000,
+    healthScore: 98,
+    lastInspectionAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+    purchasePrice: 420000,
+    expectedLifespanYears: 12,
+  });
+
+  const vehicle4 = vehicleRepository.create({
+    companyId,
+    plate: 'DEF-9090',
+    crlvNumber: '3216549870',
+    renavam: '32165498701',
+    model: 'Iveco Tector',
+    make: 'Iveco',
+    year: 2021,
+    vin: 'ZCFC65A0005123456',
+    registrationDate: new Date('2021-09-05'),
+    currentKm: 134500,
+    healthScore: 72,
+    lastInspectionAt: new Date(Date.now() - 21 * 24 * 60 * 60 * 1000),
+    purchasePrice: 290000,
+    expectedLifespanYears: 10,
+  });
+
+  const vehicle5 = vehicleRepository.create({
+    companyId,
+    plate: 'GHI-3344',
+    crlvNumber: '7418529630',
+    renavam: '74185296301',
+    model: 'Volkswagen Constellation',
+    make: 'Volkswagen',
+    year: 2020,
+    vin: '9532E82W3LR456789',
+    registrationDate: new Date('2020-03-18'),
+    currentKm: 198700,
+    healthScore: 64,
+    lastInspectionAt: new Date(Date.now() - 45 * 24 * 60 * 60 * 1000),
+    purchasePrice: 260000,
+    expectedLifespanYears: 9,
+  });
+
+  await vehicleRepository.save([
+    vehicle1,
+    vehicle2,
+    vehicle3,
+    vehicle4,
+    vehicle5,
+  ]);
 
   // Create Drivers
   const driver1 = driverRepository.create({
@@ -169,4 +236,18 @@ export async function seedDatabase(dataSource: DataSource) {
   await maintenanceRepository.save([maintenance1, maintenance2]);
 
   console.log('✅ Database seeded successfully!');
+}
+
+// Runner: executa o seed quando o arquivo é chamado diretamente
+if (require.main === module) {
+  AppDataSource.initialize()
+    .then(async (dataSource) => {
+      await seedDatabase(dataSource);
+      await dataSource.destroy();
+      process.exit(0);
+    })
+    .catch((err) => {
+      console.error('❌ Falha ao executar o seed:', err);
+      process.exit(1);
+    });
 }

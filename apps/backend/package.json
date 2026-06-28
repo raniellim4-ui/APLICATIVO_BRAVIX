@@ -16,7 +16,7 @@
     "lint": "eslint \"src/**/*.ts\" --fix",
     "migrate": "typeorm migration:run -d dist/database/data-source.js",
     "migrate:create": "typeorm migration:create",
-    "seed": "ts-node src/database/seeds/main.ts"
+    "seed": "nest build && node dist/database/seeds/main.js"
   },
   "dependencies": {
     "@nestjs/common": "^10.3.0",
