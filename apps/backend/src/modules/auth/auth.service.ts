@@ -1,76 +1,45 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  UnauthorizedException,
+  ConflictException,
+  Inject,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { Repository } from 'typeorm';
 import * as bcrypt from 'bcryptjs';
-import { v4 as uuidv4 } from 'uuid';
-
-interface User {
-  id: string;
-  email: string;
-  passwordHash: string;
-  name: string;
-  role: 'admin' | 'manager' | 'driver' | 'mechanic';
-}
+import { User } from '@database/entities';
 
 @Injectable()
 export class AuthService {
-  private users: Map<string, User> = new Map();
+  constructor(
+    private jwtService: JwtService,
+    @Inject('USER_REPOSITORY')
+    private userRepository: Repository<User>,
+  ) {}
 
-  constructor(private jwtService: JwtService) {
-    this.initializeMockUsers();
-  }
-
-  private initializeMockUsers() {
-    const mockUsers: User[] = [
-      {
-        id: uuidv4(),
-        email: 'admin@vehicleinspection.com',
-        name: 'Admin User',
-        passwordHash: bcrypt.hashSync('Admin@123456', 10),
-        role: 'admin',
-      },
-      {
-        id: uuidv4(),
-        email: 'manager@vehicleinspection.com',
-        name: 'Fleet Manager',
-        passwordHash: bcrypt.hashSync('Manager@123456', 10),
-        role: 'manager',
-      },
-      {
-        id: uuidv4(),
-        email: 'driver@vehicleinspection.com',
-        name: 'João Driver',
-        passwordHash: bcrypt.hashSync('Driver@123456', 10),
-        role: 'driver',
-      },
-    ];
-
-    mockUsers.forEach((user) => {
-      this.users.set(user.email, user);
-    });
-  }
-
-  async login(email: string, password: string) {
-    const user = this.users.get(email);
-
-    if (!user) {
-      throw new UnauthorizedException('Invalid credentials');
-    }
-
-    const passwordMatch = await bcrypt.compare(password, user.passwordHash);
-
-    if (!passwordMatch) {
-      throw new UnauthorizedException('Invalid credentials');
-    }
-
-    const token = this.jwtService.sign({
+  private sign(user: Pick<User, 'id' | 'email' | 'name' | 'role'>) {
+    return this.jwtService.sign({
       sub: user.id,
       email: user.email,
       name: user.name,
       role: user.role,
     });
+  }
+
+  async login(email: string, password: string) {
+    const user = await this.userRepository.findOne({ where: { email } });
+
+    if (!user || !user.isActive) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    const passwordMatch = await bcrypt.compare(password, user.passwordHash);
+    if (!passwordMatch) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
 
     return {
-      access_token: token,
+      access_token: this.sign(user),
       user: {
         id: user.id,
         email: user.email,
@@ -81,37 +50,28 @@ export class AuthService {
   }
 
   async register(email: string, password: string, name: string) {
-    if (this.users.has(email)) {
-      throw new UnauthorizedException('Email already in use');
+    const existing = await this.userRepository.findOne({ where: { email } });
+    if (existing) {
+      throw new ConflictException('Email already in use');
     }
 
-    const userId = uuidv4();
     const passwordHash = await bcrypt.hash(password, 10);
-
-    const newUser: User = {
-      id: userId,
+    const user = this.userRepository.create({
       email,
       name,
       passwordHash,
       role: 'driver',
-    };
-
-    this.users.set(email, newUser);
-
-    const token = this.jwtService.sign({
-      sub: userId,
-      email,
-      name,
-      role: 'driver',
+      isActive: true,
     });
+    const saved = await this.userRepository.save(user);
 
     return {
-      access_token: token,
+      access_token: this.sign(saved),
       user: {
-        id: userId,
-        email,
-        name,
-        role: 'driver',
+        id: saved.id,
+        email: saved.email,
+        name: saved.name,
+        role: saved.role,
       },
     };
   }

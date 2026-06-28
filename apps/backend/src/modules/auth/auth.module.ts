@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
+import { DataSource } from 'typeorm';
+import { User } from '@database/entities';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
@@ -16,7 +18,15 @@ import { JwtStrategy } from './strategies/jwt.strategy';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy],
+  providers: [
+    AuthService,
+    JwtStrategy,
+    {
+      provide: 'USER_REPOSITORY',
+      useFactory: (dataSource: DataSource) => dataSource.getRepository(User),
+      inject: ['DATA_SOURCE'],
+    },
+  ],
   exports: [AuthService],
 })
 export class AuthModule {}
