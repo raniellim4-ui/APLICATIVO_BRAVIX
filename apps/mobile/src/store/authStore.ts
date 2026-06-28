@@ -55,10 +55,18 @@ export const useAuthStore = create<AuthStore>((set) => ({
       if (token) {
         await apiService.setToken(token);
         const profile = await apiService.getProfile();
-        set({ user: profile.user, isLoggedIn: true });
+        const payload = profile.user ?? {};
+        const user: User = {
+          id: payload.id ?? payload.sub,
+          email: payload.email,
+          name: payload.name,
+          role: payload.role,
+        };
+        set({ user, isLoggedIn: true });
       }
     } catch (error) {
       console.error('Failed to restore session:', error);
+      await apiService.logout();
     } finally {
       set({ isLoading: false });
     }
