@@ -1,4 +1,9 @@
-import { Injectable, NestMiddleware, TooManyRequestsException } from '@nestjs/common';
+import {
+  Injectable,
+  NestMiddleware,
+  HttpException,
+  HttpStatus,
+} from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
 
 // Simple in-memory rate limiter (replace with Redis in production)
@@ -9,19 +14,20 @@ const WINDOW_MS = 60000;
 @Injectable()
 export class RateLimitMiddleware implements NestMiddleware {
   use(req: Request, res: Response, next: NextFunction) {
-    const key = req.ip;
+    const key = req.ip ?? 'unknown';
     const now = Date.now();
 
     if (!requestCounts.has(key)) {
       requestCounts.set(key, []);
     }
 
-    const timestamps = requestCounts.get(key);
+    const timestamps = requestCounts.get(key) ?? [];
     const recentRequests = timestamps.filter((time) => now - time < WINDOW_MS);
 
     if (recentRequests.length >= REQUESTS_PER_MINUTE) {
-      throw new TooManyRequestsException(
+      throw new HttpException(
         `Rate limit exceeded: ${REQUESTS_PER_MINUTE} requests per minute`,
+        HttpStatus.TOO_MANY_REQUESTS,
       );
     }
 

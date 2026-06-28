@@ -5,7 +5,7 @@ import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { LoggerMiddleware } from './common/middleware/logger.middleware';
 import { RateLimitMiddleware } from './common/middleware/rate-limit.middleware';
-import * as morgan from 'morgan';
+import morgan from 'morgan';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -15,6 +15,9 @@ async function bootstrap() {
   const logger = new Logger('Bootstrap');
   const PORT = process.env.PORT || 3000;
   const NODE_ENV = process.env.NODE_ENV || 'development';
+
+  // Global API prefix (frontends consume http://host/api/...)
+  app.setGlobalPrefix('api');
 
   // Global Exception Filter
   app.useGlobalFilters(new HttpExceptionFilter());
@@ -47,7 +50,7 @@ async function bootstrap() {
   });
 
   // Security Headers
-  app.use((req, res, next) => {
+  app.use((req: any, res: any, next: any) => {
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('X-Frame-Options', 'DENY');
     res.setHeader('X-XSS-Protection', '1; mode=block');

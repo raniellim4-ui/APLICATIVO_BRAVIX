@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { APP_GUARD } from '@nestjs/core';
+import { DatabaseModule } from './database/database.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { VehiclesModule } from './modules/vehicles/vehicles.module';
 import { DriversModule } from './modules/drivers/drivers.module';
@@ -27,16 +28,17 @@ import {
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: process.env.DB_HOST || 'localhost',
-      port: parseInt(process.env.DB_PORT) || 5432,
+      port: parseInt(process.env.DB_PORT || '5432', 10),
       username: process.env.DB_USER || 'postgres',
       password: process.env.DB_PASSWORD || 'postgres',
       database: process.env.DB_NAME || 'vehicle_inspection_dev',
       entities: [User, Vehicle, Driver, Inspection, MaintenanceSchedule],
       migrations: ['dist/database/migrations/*.js'],
-      migrationsRun: true,
+      migrationsRun: false,
       synchronize: false,
       logging: process.env.DB_LOGGING === 'true',
     }),
+    DatabaseModule,
     AuthModule,
     VehiclesModule,
     DriversModule,
