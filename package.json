@@ -6,9 +6,7 @@
   "workspaces": [
     "apps/backend",
     "apps/mobile",
-    "apps/web",
-    "packages/shared-types",
-    "packages/shared-utils"
+    "apps/web"
   ],
   "scripts": {
     "install:all": "npm install --workspaces",
