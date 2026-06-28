@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/lib/auth-context';
 import { BrandLogo } from '@/components/BrandLogo';
-import { vehiclesApi, inspectionsApi } from '@/lib/api';
+import { vehiclesApi, inspectionsApi, maintenanceApi } from '@/lib/api';
 
 const roleLabels: Record<string, string> = {
   admin: 'Administrador',
@@ -57,6 +57,19 @@ export default function Dashboard() {
     },
   });
 
+  const { data: maintData } = useQuery({
+    queryKey: ['maintenance-alerts'],
+    queryFn: async () => {
+      const res = await maintenanceApi.getAllAlerts();
+      return res.data as {
+        total: number;
+        criticalAlerts: number;
+        warningAlerts: number;
+        infoAlerts: number;
+      };
+    },
+  });
+
   const onLogout = () => {
     logout();
     router.replace('/login');
@@ -75,6 +88,9 @@ export default function Dashboard() {
   const inspCompleted = inspData?.inspections.filter(
     (i) => i.status === 'completed' || i.status === 'approved',
   ).length;
+
+  const maintTotal = maintData?.total;
+  const maintCritical = maintData?.criticalAlerts;
 
   return (
     <>
@@ -134,7 +150,15 @@ export default function Dashboard() {
                 : 'registradas'
             }
           />
-          <Stat label="Manutenções" value="3" hint="previstas esta semana" />
+          <Stat
+            label="Manutenções"
+            value={maintTotal !== undefined ? String(maintTotal) : '—'}
+            hint={
+              maintCritical
+                ? `${maintCritical} crítica(s)`
+                : 'alertas ativos'
+            }
+          />
         </div>
 
         <div className="grid gap-4 lg:grid-cols-3">

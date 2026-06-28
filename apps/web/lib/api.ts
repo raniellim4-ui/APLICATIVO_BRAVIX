@@ -99,6 +99,7 @@ export const maintenanceApi = {
     api.get(`/maintenance/vehicle/${vehicleId}`),
   getAlertsByVehicle: (vehicleId: string) =>
     api.get(`/maintenance/vehicle/${vehicleId}/alerts`),
+  getAllAlerts: () => api.get('/maintenance/alerts'),
 };
 
 // Analytics API
