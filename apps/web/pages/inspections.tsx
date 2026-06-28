@@ -1,6 +1,7 @@
 import Head from 'next/head';
 import Link from 'next/link';
 import { useMemo } from 'react';
+import { useRouter } from 'next/router';
 import { useQuery } from '@tanstack/react-query';
 import { inspectionsApi, vehiclesApi } from '@/lib/api';
 
@@ -60,6 +61,7 @@ function formatDate(value: string): string {
 }
 
 export default function InspectionsPage() {
+  const router = useRouter();
   const inspectionsQuery = useQuery({
     queryKey: ['inspections'],
     queryFn: async () => {
@@ -149,16 +151,14 @@ export default function InspectionsPage() {
                     return (
                       <tr
                         key={insp.id}
-                        className="border-b border-[var(--border)] transition last:border-0 hover:bg-white/[0.03]"
+                        onClick={() => router.push(`/inspections/${insp.id}`)}
+                        className="cursor-pointer border-b border-[var(--border)] transition last:border-0 hover:bg-white/[0.03]"
                       >
                         <td className="px-5 py-4">
                           {vehicle ? (
-                            <Link
-                              href={`/vehicles/${vehicle.id}`}
-                              className="font-mono font-bold tracking-widest text-amber hover:underline"
-                            >
+                            <span className="font-mono font-bold tracking-widest text-amber">
                               {vehicle.plate}
-                            </Link>
+                            </span>
                           ) : (
                             <span className="font-mono text-xs text-muted">
                               {insp.vehicleId.slice(0, 8)}…

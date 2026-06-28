@@ -5,6 +5,9 @@ import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { LoggerMiddleware } from './common/middleware/logger.middleware';
 import { RateLimitMiddleware } from './common/middleware/rate-limit.middleware';
+import { UPLOAD_DIR } from './modules/uploads/uploads.controller';
+import { join } from 'path';
+import express from 'express';
 import morgan from 'morgan';
 
 async function bootstrap() {
@@ -15,6 +18,9 @@ async function bootstrap() {
   const logger = new Logger('Bootstrap');
   const PORT = process.env.PORT || 3000;
   const NODE_ENV = process.env.NODE_ENV || 'development';
+
+  // Servir arquivos enviados em /uploads (fora do prefixo /api)
+  app.use('/uploads', express.static(join(process.cwd(), UPLOAD_DIR)));
 
   // Global API prefix (frontends consume http://host/api/...)
   app.setGlobalPrefix('api');

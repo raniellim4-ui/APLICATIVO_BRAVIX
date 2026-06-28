@@ -10,6 +10,7 @@ import { InspectionsModule } from './modules/inspections/inspections.module';
 import { MaintenanceModule } from './modules/maintenance/maintenance.module';
 import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { HealthModule } from './modules/health/health.module';
+import { UploadsModule } from './modules/uploads/uploads.module';
 import { RolesGuard } from './common/guards/roles.guard';
 import {
   User,
@@ -46,6 +47,7 @@ import {
     MaintenanceModule,
     AnalyticsModule,
     HealthModule,
+    UploadsModule,
   ],
   providers: [
     {
