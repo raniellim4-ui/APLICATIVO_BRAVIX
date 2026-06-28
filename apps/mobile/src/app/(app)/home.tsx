@@ -40,6 +40,30 @@ export default function HomeScreen() {
         onPress={() => router.push('/(app)/vehicles')}
       >
         <View>
+          <Text style={styles.actionTitle}>Inspeção</Text>
+          <Text style={styles.actionSubtitle}>Selecione um veículo e capture fotos</Text>
+        </View>
+        <Text style={styles.actionArrow}>›</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={styles.actionCard}
+        activeOpacity={0.85}
+        onPress={() => router.push('/(app)/vehicles')}
+      >
+        <View>
+          <Text style={styles.actionTitle}>Inspeção</Text>
+          <Text style={styles.actionSubtitle}>Selecione um veículo e capture fotos</Text>
+        </View>
+        <Text style={styles.actionArrow}>›</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={styles.actionCard}
+        activeOpacity={0.85}
+        onPress={() => router.push('/(app)/vehicles')}
+      >
+        <View>
           <Text style={styles.actionTitle}>Veículos</Text>
           <Text style={styles.actionSubtitle}>Ver a frota cadastrada</Text>
         </View>

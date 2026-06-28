@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/lib/auth-context';
+import { BrandLogo } from '@/components/BrandLogo';
 import { vehiclesApi } from '@/lib/api';
 
 const roleLabels: Record<string, string> = {
@@ -72,12 +73,7 @@ export default function Dashboard() {
       <header className="sticky top-0 z-10 border-b bg-[var(--bg)]/80 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <div className="flex items-center gap-3">
-            <div className="grid h-8 w-8 place-items-center rounded-md bg-[var(--amber)] font-display text-base font-extrabold text-[#0a0b0d]">
-              B
-            </div>
-            <span className="font-display text-base font-bold tracking-tight">
-              BRAVIX<span className="text-amber"> FLEET</span>
-            </span>
+            <BrandLogo width={112} height={36} />
           </div>
           <div className="flex items-center gap-4">
             {user && (

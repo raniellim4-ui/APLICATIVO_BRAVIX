@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { Link, useRouter } from 'expo-router';
 import { useAuth } from '@hooks/useAuth';
+import { BrandLogo } from '@components/BrandLogo';
 import { TextField } from '@components/TextField';
 import { PrimaryButton } from '@components/PrimaryButton';
 import { colors, spacing } from '@constants/theme';
@@ -58,7 +59,7 @@ export default function LoginScreen() {
         keyboardShouldPersistTaps="handled"
       >
         <View style={styles.header}>
-          <Text style={styles.title}>Inspeção Veicular</Text>
+          <BrandLogo width={160} height={52} style={styles.logo} />
           <Text style={styles.subtitle}>Entre com sua conta para continuar</Text>
         </View>
 
@@ -110,12 +111,10 @@ const styles = StyleSheet.create({
   },
   header: {
     marginBottom: spacing.xl,
+    alignItems: 'center',
   },
-  title: {
-    color: colors.text,
-    fontSize: 28,
-    fontWeight: '800',
-    marginBottom: spacing.xs,
+  logo: {
+    marginBottom: spacing.md,
   },
   subtitle: {
     color: colors.textMuted,

@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { apiService } from '@services/api';
+import { PrimaryButton } from '@components/PrimaryButton';
 import { Vehicle } from '@/types';
 import { colors, radius, spacing } from '@constants/theme';
 
@@ -204,6 +205,17 @@ export default function VehicleDetailScreen() {
               ))
             )}
           </View>
+
+          <PrimaryButton
+            title="Iniciar inspeção"
+            onPress={() =>
+              router.push({
+                pathname: '/(app)/inspection/[vehicleId]',
+                params: { vehicleId: id, plate: vehicle.plate },
+              })
+            }
+            style={{ marginTop: spacing.sm }}
+          />
         </ScrollView>
       )}
     </View>

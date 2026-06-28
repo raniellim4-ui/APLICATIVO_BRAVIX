@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useAuth } from '@/lib/auth-context';
+import { BrandLogo } from '@/components/BrandLogo';
 
 const loginSchema = z.object({
   email: z.string().min(1, 'Informe o e-mail').email('E-mail inválido'),
@@ -46,12 +47,7 @@ export default function LoginPage() {
         <section className="relative hidden flex-col justify-between overflow-hidden border-r p-12 lg:flex">
           <div className="absolute inset-0 -z-10 bg-[radial-gradient(700px_circle_at_30%_20%,rgba(245,165,36,0.10),transparent_60%)]" />
           <div className="flex items-center gap-3">
-            <div className="grid h-9 w-9 place-items-center rounded-md bg-[var(--amber)] font-display text-lg font-extrabold text-[#0a0b0d]">
-              B
-            </div>
-            <span className="font-display text-lg font-bold tracking-tight">
-              BRAVIX<span className="text-amber"> FLEET</span>
-            </span>
+            <BrandLogo width={132} height={44} />
           </div>
 
           <div className="max-w-md">
@@ -86,9 +82,7 @@ export default function LoginPage() {
         <section className="flex items-center justify-center p-6">
           <div className="w-full max-w-sm">
             <div className="mb-8 lg:hidden">
-              <span className="font-display text-xl font-bold">
-                BRAVIX<span className="text-amber"> FLEET</span>
-              </span>
+              <BrandLogo width={120} height={40} />
             </div>
 
             <p className="label-eyebrow mb-2">Acesso restrito</p>

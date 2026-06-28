@@ -110,6 +110,13 @@ class ApiService {
     return response.data;
   }
 
+  async addInspectionSignature(inspectionId: string, signature: string) {
+    const response = await this.api.post(`/inspections/${inspectionId}/signature`, {
+      signature,
+    });
+    return response.data;
+  }
+
   // Dashboard endpoints
   async getDriverDashboard() {
     const response = await this.api.get('/drivers/:id/dashboard');
