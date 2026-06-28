@@ -93,6 +93,11 @@ class ApiService {
   }
 
   // Inspection endpoints
+  async getInspections() {
+    const response = await this.api.get('/inspections');
+    return response.data;
+  }
+
   async createInspection(data: any) {
     const response = await this.api.post('/inspections', data);
     return response.data;
@@ -115,6 +120,21 @@ class ApiService {
       signature,
     });
     return response.data;
+  }
+
+  // Faz upload de uma foto local (uri do device) e retorna a URL no servidor
+  async uploadPhoto(uri: string): Promise<string> {
+    const name = uri.split('/').pop() || `photo-${Date.now()}.jpg`;
+    const extMatch = /\.(\w+)$/.exec(name);
+    const ext = extMatch ? extMatch[1].toLowerCase() : 'jpg';
+    const type = `image/${ext === 'jpg' ? 'jpeg' : ext}`;
+    const form = new FormData();
+    form.append('file', { uri, name, type } as any);
+    const response = await this.api.post('/uploads', form, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+      timeout: 30000,
+    });
+    return response.data.url as string;
   }
 
   // Dashboard endpoints

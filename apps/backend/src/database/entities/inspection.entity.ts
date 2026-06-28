@@ -88,6 +88,9 @@ export class Inspection {
   @Column({ type: 'jsonb', default: {} })
   damageDetails: any;
 
+  @Column({ type: 'jsonb', default: [] })
+  photos: string[];
+
   @CreateDateColumn({ type: 'timestamp with time zone' })
   createdAt: Date;
 

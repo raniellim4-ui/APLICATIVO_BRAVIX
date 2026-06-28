@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/lib/auth-context';
 import { BrandLogo } from '@/components/BrandLogo';
-import { vehiclesApi } from '@/lib/api';
+import { vehiclesApi, inspectionsApi, maintenanceApi } from '@/lib/api';
 
 const roleLabels: Record<string, string> = {
   admin: 'Administrador',
@@ -49,6 +49,27 @@ export default function Dashboard() {
     },
   });
 
+  const { data: inspData } = useQuery({
+    queryKey: ['inspections'],
+    queryFn: async () => {
+      const res = await inspectionsApi.getAll();
+      return res.data as { total: number; inspections: any[] };
+    },
+  });
+
+  const { data: maintData } = useQuery({
+    queryKey: ['maintenance-alerts'],
+    queryFn: async () => {
+      const res = await maintenanceApi.getAllAlerts();
+      return res.data as {
+        total: number;
+        criticalAlerts: number;
+        warningAlerts: number;
+        infoAlerts: number;
+      };
+    },
+  });
+
   const onLogout = () => {
     logout();
     router.replace('/login');
@@ -62,6 +83,14 @@ export default function Dashboard() {
             data.vehicles.length,
         )
       : undefined;
+
+  const inspTotal = inspData?.total;
+  const inspCompleted = inspData?.inspections.filter(
+    (i) => i.status === 'completed' || i.status === 'approved',
+  ).length;
+
+  const maintTotal = maintData?.total;
+  const maintCritical = maintData?.criticalAlerts;
 
   return (
     <>
@@ -112,8 +141,24 @@ export default function Dashboard() {
             value={avgHealth !== undefined ? `${avgHealth}%` : '—'}
             hint="índice da frota"
           />
-          <Stat label="Inspeções / mês" value="156" hint="média 15,6/dia" />
-          <Stat label="Manutenções" value="3" hint="previstas esta semana" />
+          <Stat
+            label="Inspeções"
+            value={inspTotal !== undefined ? String(inspTotal) : '—'}
+            hint={
+              inspCompleted !== undefined
+                ? `${inspCompleted} concluída(s)`
+                : 'registradas'
+            }
+          />
+          <Stat
+            label="Manutenções"
+            value={maintTotal !== undefined ? String(maintTotal) : '—'}
+            hint={
+              maintCritical
+                ? `${maintCritical} crítica(s)`
+                : 'alertas ativos'
+            }
+          />
         </div>
 
         <div className="grid gap-4 lg:grid-cols-3">
@@ -132,10 +177,21 @@ export default function Dashboard() {
             </span>
           </Link>
 
-          <div className="panel p-6 opacity-70">
-            <div className="font-display text-lg font-bold">Inspeções</div>
-            <div className="mt-1 text-sm text-muted">Em breve</div>
-          </div>
+          <Link
+            href="/inspections"
+            className="panel group flex items-center justify-between p-6 transition hover:border-[var(--border-strong)] hover:bg-white/[0.03]"
+          >
+            <div>
+              <div className="font-display text-lg font-bold">Inspeções</div>
+              <div className="mt-1 text-sm text-muted">
+                Registros, fotos e qualidade
+              </div>
+            </div>
+            <span className="text-2xl text-amber transition group-hover:translate-x-1">
+              →
+            </span>
+          </Link>
+
           <div className="panel p-6 opacity-70">
             <div className="font-display text-lg font-bold">Manutenção</div>
             <div className="mt-1 text-sm text-muted">Em breve</div>

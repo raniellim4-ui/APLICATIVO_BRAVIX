@@ -1,99 +1,159 @@
-import { Injectable } from '@nestjs/common';
-import { v4 as uuidv4 } from 'uuid';
+import { Injectable, Inject } from '@nestjs/common';
+import { Repository } from 'typeorm';
+import { MaintenanceSchedule, Vehicle } from '@database/entities';
+
+// Janela (km) a partir da qual um agendamento vira "alerta"
+const ALERT_WINDOW_KM = 15000;
+const WARNING_KM = 5000;
+
+type Severity = 'info' | 'warning' | 'critical';
 
 @Injectable()
 export class MaintenanceService {
-  private schedules = new Map();
-  private alerts = new Map();
-  private history = new Map();
+  constructor(
+    @Inject('MAINTENANCE_SCHEDULE_REPOSITORY')
+    private scheduleRepository: Repository<MaintenanceSchedule>,
+  ) {}
 
-  getScheduleByVehicle(vehicleId: string) {
+  private get vehicleRepository(): Repository<Vehicle> {
+    return this.scheduleRepository.manager.getRepository(Vehicle);
+  }
+
+  private severityFor(kmRemaining: number): Severity {
+    if (kmRemaining <= 0) return 'critical';
+    if (kmRemaining <= WARNING_KM) return 'warning';
+    return 'info';
+  }
+
+  private messageFor(component: string, kmRemaining: number): string {
+    if (kmRemaining <= 0) {
+      return `${component}: vencida há ${Math.abs(kmRemaining).toLocaleString('pt-BR')} km`;
+    }
+    return `${component}: vence em ${kmRemaining.toLocaleString('pt-BR')} km`;
+  }
+
+  private daysRemaining(nextDueDate?: Date | null): number | undefined {
+    if (!nextDueDate) return undefined;
+    const diff = new Date(nextDueDate).getTime() - Date.now();
+    return Math.round(diff / (24 * 60 * 60 * 1000));
+  }
+
+  private buildAlert(schedule: MaintenanceSchedule, currentKm: number) {
+    const kmRemaining = schedule.nextDueKm - currentKm;
     return {
-      vehicleId,
-      schedules: [
-        {
-          id: uuidv4(),
-          component: 'Oil Change',
-          recommendedKm: 10000,
-          nextDueKm: 5000,
-          lastServiceKm: 45000,
-          lastServiceDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
-        },
-        {
-          id: uuidv4(),
-          component: 'Tire Rotation',
-          recommendedKm: 20000,
-          nextDueKm: 15000,
-          lastServiceKm: 30000,
-          lastServiceDate: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000),
-        },
-      ],
+      id: schedule.id,
+      severity: this.severityFor(kmRemaining),
+      component: schedule.component,
+      message: this.messageFor(schedule.component, kmRemaining),
+      kmRemaining,
+      daysRemaining: this.daysRemaining(schedule.nextDueDate),
     };
   }
 
-  getAlertsByVehicle(vehicleId: string) {
+  async getScheduleByVehicle(vehicleId: string) {
+    const schedules = await this.scheduleRepository.find({
+      where: { vehicleId, isActive: true },
+      order: { nextDueKm: 'ASC' },
+    });
     return {
       vehicleId,
-      alerts: [
-        {
-          id: uuidv4(),
-          severity: 'warning',
-          component: 'Oil Change',
-          message: 'Oil change due in 5,000 km',
-          daysRemaining: 15,
-          kmRemaining: 5000,
-        },
-        {
-          id: uuidv4(),
-          severity: 'info',
-          component: 'Brake Inspection',
-          message: 'Next brake inspection in 2 months',
-          daysRemaining: 60,
-          kmRemaining: 12000,
-        },
-      ],
+      schedules: schedules.map((s) => ({
+        id: s.id,
+        component: s.component,
+        maintenanceType: s.maintenanceType,
+        recommendedKm: s.recommendedKm,
+        nextDueKm: s.nextDueKm,
+        lastServiceKm: s.lastPerformedKm,
+        lastServiceDate: s.lastPerformedDate,
+      })),
     };
   }
 
-  getAllAlerts() {
+  async getAlertsByVehicle(vehicleId: string) {
+    const vehicle = await this.vehicleRepository.findOne({
+      where: { id: vehicleId },
+    });
+    const currentKm = Number(vehicle?.currentKm) || 0;
+    const schedules = await this.scheduleRepository.find({
+      where: { vehicleId, isActive: true },
+      order: { nextDueKm: 'ASC' },
+    });
+    const alerts = schedules
+      .map((s) => this.buildAlert(s, currentKm))
+      .filter((a) => a.kmRemaining <= ALERT_WINDOW_KM);
+    return { vehicleId, alerts };
+  }
+
+  async getAllAlerts() {
+    const [schedules, vehicles] = await Promise.all([
+      this.scheduleRepository.find({ where: { isActive: true } }),
+      this.vehicleRepository.find(),
+    ]);
+    const vehicleMap = new Map(vehicles.map((v) => [v.id, v]));
+
+    const alerts = schedules
+      .map((s) => {
+        const vehicle = vehicleMap.get(s.vehicleId);
+        const currentKm = Number(vehicle?.currentKm) || 0;
+        const base = this.buildAlert(s, currentKm);
+        return {
+          ...base,
+          vehicleId: s.vehicleId,
+          plate: vehicle?.plate ?? null,
+        };
+      })
+      .filter((a) => a.kmRemaining <= ALERT_WINDOW_KM)
+      .sort((a, b) => a.kmRemaining - b.kmRemaining);
+
+    const criticalAlerts = alerts.filter((a) => a.severity === 'critical').length;
+    const warningAlerts = alerts.filter((a) => a.severity === 'warning').length;
+    const infoAlerts = alerts.filter((a) => a.severity === 'info').length;
+
     return {
-      total: 25,
-      criticalAlerts: 3,
-      warningAlerts: 8,
-      infoAlerts: 14,
-      alerts: [
-        {
-          vehicleId: uuidv4(),
-          plate: 'ABC-1234',
-          severity: 'critical',
-          message: 'Engine warning light',
-        },
-        {
-          vehicleId: uuidv4(),
-          plate: 'XYZ-5678',
-          severity: 'warning',
-          message: 'Oil change overdue',
-        },
-      ],
+      total: alerts.length,
+      criticalAlerts,
+      warningAlerts,
+      infoAlerts,
+      alerts,
     };
   }
 
-  createSchedule(vehicleId: string, scheduleDto: any) {
-    return {
-      id: uuidv4(),
+  async createSchedule(vehicleId: string, scheduleDto: any) {
+    const schedule = this.scheduleRepository.create({
       vehicleId,
-      ...scheduleDto,
-      createdAt: new Date(),
-    };
+      maintenanceType: scheduleDto.maintenanceType || 'generic',
+      component: scheduleDto.component,
+      recommendedKm: scheduleDto.recommendedKm,
+      alertThresholdKm:
+        scheduleDto.alertThresholdKm ??
+        Math.max(0, (scheduleDto.recommendedKm || 0) - 1000),
+      nextDueKm: scheduleDto.nextDueKm,
+      nextDueDate: scheduleDto.nextDueDate,
+      lastPerformedKm: scheduleDto.lastPerformedKm,
+      lastPerformedDate: scheduleDto.lastPerformedDate,
+      isActive: true,
+    });
+    return await this.scheduleRepository.save(schedule);
   }
 
-  recordMaintenance(vehicleId: string, maintenanceDto: any) {
-    return {
-      id: uuidv4(),
-      vehicleId,
-      ...maintenanceDto,
-      recordedAt: new Date(),
-      status: 'completed',
-    };
+  async recordMaintenance(vehicleId: string, maintenanceDto: any) {
+    const schedule = await this.scheduleRepository.findOne({
+      where: { id: maintenanceDto.scheduleId, vehicleId },
+    });
+    if (!schedule) {
+      // Sem agendamento associado: apenas registra o evento de forma simples
+      return {
+        vehicleId,
+        ...maintenanceDto,
+        recordedAt: new Date(),
+        status: 'completed',
+      };
+    }
+    const performedKm = Number(maintenanceDto.performedKm) || schedule.nextDueKm;
+    schedule.lastPerformedKm = performedKm;
+    schedule.lastPerformedDate = new Date();
+    schedule.nextDueKm = performedKm + schedule.recommendedKm;
+    schedule.alertSent = false;
+    return await this.scheduleRepository.save(schedule);
   }
 }

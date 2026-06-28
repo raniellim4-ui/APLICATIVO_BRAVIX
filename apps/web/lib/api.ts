@@ -2,6 +2,18 @@ import axios from 'axios';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
 
+// Origem do backend (sem o sufixo /api) — usada para montar URLs de assets (/uploads/...)
+export const API_ORIGIN = API_BASE_URL.replace(/\/api\/?$/, '');
+
+// Resolve uma URL de foto: caminho relativo (/uploads/x) -> URL absoluta do backend.
+// URIs http(s) já completas são mantidas; URIs locais de device (file://) não são exibíveis.
+export function assetUrl(path?: string | null): string | null {
+  if (!path) return null;
+  if (path.startsWith('http://') || path.startsWith('https://')) return path;
+  if (path.startsWith('/')) return `${API_ORIGIN}${path}`;
+  return null; // file:// ou caminhos locais do device não renderizam no web
+}
+
 export const api = axios.create({
   baseURL: API_BASE_URL,
   timeout: 10000,
@@ -87,6 +99,7 @@ export const maintenanceApi = {
     api.get(`/maintenance/vehicle/${vehicleId}`),
   getAlertsByVehicle: (vehicleId: string) =>
     api.get(`/maintenance/vehicle/${vehicleId}/alerts`),
+  getAllAlerts: () => api.get('/maintenance/alerts'),
 };
 
 // Analytics API

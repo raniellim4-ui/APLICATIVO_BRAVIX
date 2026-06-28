@@ -18,47 +18,54 @@ export async function seedDatabase(dataSource: DataSource) {
   const maintenanceRepository =
     dataSource.getRepository(MaintenanceSchedule);
 
-  // Idempotência: não duplicar dados se já houver veículos
+  // Seed de usuários — idempotência própria (independente dos veículos),
+  // pois a autenticação agora usa o banco.
+  const userCount = await userRepository.count();
+  if (userCount === 0) {
+    const adminPassword = await bcrypt.hash('Admin@123456', 10);
+    const managerPassword = await bcrypt.hash('Manager@123456', 10);
+    const driverPassword = await bcrypt.hash('Driver@123456', 10);
+
+    const admin = userRepository.create({
+      name: 'Admin User',
+      email: 'admin@vehicleinspection.com',
+      passwordHash: adminPassword,
+      role: 'admin',
+      phone: '11 99999-9999',
+    });
+
+    const manager = userRepository.create({
+      name: 'Fleet Manager',
+      email: 'manager@vehicleinspection.com',
+      passwordHash: managerPassword,
+      role: 'manager',
+      phone: '11 99999-8888',
+    });
+
+    const driver = userRepository.create({
+      name: 'João Driver',
+      email: 'driver@vehicleinspection.com',
+      passwordHash: driverPassword,
+      role: 'driver',
+      phone: '11 99999-7777',
+    });
+
+    await userRepository.save([admin, manager, driver]);
+    console.log('✅ Usuários de acesso criados (admin/manager/driver).');
+  } else {
+    console.log(`ℹ️  Usuários já existem (${userCount}); seed de usuários ignorado.`);
+  }
+
+  // Idempotência: não duplicar o restante se já houver veículos
   const existing = await vehicleRepository.count();
   if (existing > 0) {
     console.log(
-      `ℹ️  Seed ignorado: já existem ${existing} veículo(s) no banco.`,
+      `ℹ️  Seed de frota ignorado: já existem ${existing} veículo(s) no banco.`,
     );
     return;
   }
 
   const companyId = uuidv4();
-
-  // Create Users
-  const adminPassword = await bcrypt.hash('Admin@123456', 10);
-  const managerPassword = await bcrypt.hash('Manager@123456', 10);
-  const driverPassword = await bcrypt.hash('Driver@123456', 10);
-
-  const admin = userRepository.create({
-    name: 'Admin User',
-    email: 'admin@vehicleinspection.com',
-    passwordHash: adminPassword,
-    role: 'admin',
-    phone: '11 99999-9999',
-  });
-
-  const manager = userRepository.create({
-    name: 'Fleet Manager',
-    email: 'manager@vehicleinspection.com',
-    passwordHash: managerPassword,
-    role: 'manager',
-    phone: '11 99999-8888',
-  });
-
-  const driver = userRepository.create({
-    name: 'João Driver',
-    email: 'driver@vehicleinspection.com',
-    passwordHash: driverPassword,
-    role: 'driver',
-    phone: '11 99999-7777',
-  });
-
-  await userRepository.save([admin, manager, driver]);
 
   // Create Vehicles
   const vehicle1 = vehicleRepository.create({

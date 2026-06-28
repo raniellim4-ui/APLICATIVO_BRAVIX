@@ -49,11 +49,11 @@ export default function HomeScreen() {
       <TouchableOpacity
         style={styles.actionCard}
         activeOpacity={0.85}
-        onPress={() => router.push('/(app)/vehicles')}
+        onPress={() => router.push('/(app)/inspections')}
       >
         <View>
-          <Text style={styles.actionTitle}>Inspeção</Text>
-          <Text style={styles.actionSubtitle}>Selecione um veículo e capture fotos</Text>
+          <Text style={styles.actionTitle}>Histórico de inspeções</Text>
+          <Text style={styles.actionSubtitle}>Inspeções já registradas na frota</Text>
         </View>
         <Text style={styles.actionArrow}>›</Text>
       </TouchableOpacity>

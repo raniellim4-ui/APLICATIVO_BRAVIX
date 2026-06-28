@@ -76,8 +76,13 @@ export default function InspectionScreen() {
     setSubmitting(true);
     setError('');
     try {
-      const photoUrls = REQUIRED_PHOTO_SLOTS.map((s) => photos[s.key] as string);
-      await apiService.addInspectionPhotos(inspectionId, photoUrls);
+      const localUris = REQUIRED_PHOTO_SLOTS.map((s) => photos[s.key] as string);
+      // Sobe cada foto para o servidor e coleta as URLs reais
+      const uploadedUrls: string[] = [];
+      for (const uri of localUris) {
+        uploadedUrls.push(await apiService.uploadPhoto(uri));
+      }
+      await apiService.addInspectionPhotos(inspectionId, uploadedUrls);
       await apiService.addInspectionSignature(
         inspectionId,
         `signed-by-mobile-${Date.now()}`,

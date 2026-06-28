@@ -35,6 +35,7 @@ export interface Inspection {
   totalPhotos: number;
   damageCount: number;
   odometerReading: number;
+  aiQualityScore?: number | string;
 }
 
 export interface InspectionPhoto {

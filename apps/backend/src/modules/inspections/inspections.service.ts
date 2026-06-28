@@ -1,131 +1,104 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
-import { v4 as uuidv4 } from 'uuid';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+  Inject,
+} from '@nestjs/common';
+import { Repository } from 'typeorm';
+import { Inspection } from '@database/entities';
 
-interface Inspection {
-  id: string;
-  vehicleId: string;
-  driverId: string;
-  inspectionDate: Date;
-  type: string;
-  status: string;
-  photos: string[];
-  damageDetails: any;
-  signature: string | null;
-  totalPhotos: number;
-  aiQualityScore: number;
-  createdAt: Date;
-}
+const REQUIRED_PHOTOS = 6;
 
 @Injectable()
 export class InspectionsService {
-  private inspections: Map<string, Inspection> = new Map();
+  constructor(
+    @Inject('INSPECTION_REPOSITORY')
+    private inspectionRepository: Repository<Inspection>,
+  ) {}
 
-  constructor() {
-    this.initializeMockInspections();
-  }
-
-  private initializeMockInspections() {
-    const mockInspections: Inspection[] = [
-      {
-        id: uuidv4(),
-        vehicleId: uuidv4(),
-        driverId: uuidv4(),
-        inspectionDate: new Date(),
-        type: 'pre_trip',
-        status: 'completed',
-        photos: [],
-        damageDetails: {},
-        signature: null,
-        totalPhotos: 6,
-        aiQualityScore: 0.94,
-        createdAt: new Date(),
-      },
-    ];
-
-    mockInspections.forEach((inspection) => {
-      this.inspections.set(inspection.id, inspection);
+  async findAll() {
+    const inspections = await this.inspectionRepository.find({
+      order: { inspectionDate: 'DESC' },
     });
+    return { total: inspections.length, inspections };
   }
 
-  findAll() {
-    return {
-      total: this.inspections.size,
-      inspections: Array.from(this.inspections.values()),
-    };
-  }
-
-  findOne(id: string) {
-    const inspection = this.inspections.get(id);
+  async findOne(id: string) {
+    const inspection = await this.inspectionRepository.findOne({
+      where: { id },
+    });
     if (!inspection) {
       throw new NotFoundException(`Inspection with ID ${id} not found`);
     }
     return inspection;
   }
 
-  create(createInspectionDto: any, driverId: string) {
-    const id = uuidv4();
-    const inspection: Inspection = {
-      id,
+  async findByVehicle(vehicleId: string) {
+    const inspections = await this.inspectionRepository.find({
+      where: { vehicleId },
+      order: { inspectionDate: 'DESC' },
+    });
+    return { total: inspections.length, inspections };
+  }
+
+  async findByDriver(driverId: string) {
+    const inspections = await this.inspectionRepository.find({
+      where: { driverId },
+      order: { inspectionDate: 'DESC' },
+    });
+    return { total: inspections.length, inspections };
+  }
+
+  async create(createInspectionDto: any, driverId: string) {
+    const inspection = this.inspectionRepository.create({
+      vehicleId: createInspectionDto.vehicleId,
       driverId,
-      ...createInspectionDto,
+      inspectionType:
+        createInspectionDto.inspectionType ||
+        createInspectionDto.type ||
+        'pre_trip',
       inspectionDate: new Date(),
       status: 'draft',
       photos: [],
-      damageDetails: {},
-      signature: null,
       totalPhotos: 0,
-      aiQualityScore: 0,
-      createdAt: new Date(),
-    };
-    this.inspections.set(id, inspection);
-    return inspection;
+      damageDetails: {},
+    });
+    return await this.inspectionRepository.save(inspection);
   }
 
-  findByVehicle(vehicleId: string) {
-    const inspections = Array.from(this.inspections.values()).filter(
-      (i) => i.vehicleId === vehicleId,
-    );
-    return { total: inspections.length, inspections };
-  }
-
-  findByDriver(driverId: string) {
-    const inspections = Array.from(this.inspections.values()).filter(
-      (i) => i.driverId === driverId,
-    );
-    return { total: inspections.length, inspections };
-  }
-
-  addPhotos(id: string, photosDto: any) {
-    const inspection = this.findOne(id);
+  async addPhotos(id: string, photosDto: any) {
+    const inspection = await this.findOne(id);
     if (inspection.status !== 'draft') {
       throw new BadRequestException(
         'Cannot add photos to a submitted inspection',
       );
     }
-    inspection.photos.push(...(photosDto.photoUrls || []));
+    const incoming: string[] = photosDto.photoUrls || [];
+    inspection.photos = [...(inspection.photos || []), ...incoming];
     inspection.totalPhotos = inspection.photos.length;
-    inspection.aiQualityScore = Math.random() * 0.3 + 0.7;
-    return inspection;
+    inspection.aiQualityScore = Number((Math.random() * 0.3 + 0.7).toFixed(2));
+    return await this.inspectionRepository.save(inspection);
   }
 
-  addSignature(id: string, signatureDto: any) {
-    const inspection = this.findOne(id);
+  async addSignature(id: string, signatureDto: any) {
+    const inspection = await this.findOne(id);
     if (!signatureDto.signature) {
       throw new BadRequestException('Signature is required');
     }
-    inspection.signature = signatureDto.signature;
-    return inspection;
+    inspection.signatureDigital = signatureDto.signature;
+    return await this.inspectionRepository.save(inspection);
   }
 
-  submitInspection(id: string) {
-    const inspection = this.findOne(id);
-    if (inspection.photos.length < 6) {
+  async submitInspection(id: string) {
+    const inspection = await this.findOne(id);
+    if ((inspection.photos?.length || 0) < REQUIRED_PHOTOS) {
       throw new BadRequestException('All required photos must be provided');
     }
-    if (!inspection.signature) {
+    if (!inspection.signatureDigital) {
       throw new BadRequestException('Signature is required');
     }
     inspection.status = 'completed';
-    return { message: 'Inspection submitted successfully', inspection };
+    const saved = await this.inspectionRepository.save(inspection);
+    return { message: 'Inspection submitted successfully', inspection: saved };
   }
 }
