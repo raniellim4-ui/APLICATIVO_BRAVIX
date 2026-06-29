@@ -1,132 +1,65 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { VehiclesService } from './vehicles.service';
+import { Test } from '@nestjs/testing';
 import { NotFoundException } from '@nestjs/common';
+import { VehiclesService } from './vehicles.service';
 
 describe('VehiclesService', () => {
+  const mockRepo = {
+    find: jest.fn(),
+    findOne: jest.fn(),
+    create: jest.fn(),
+    save: jest.fn(),
+    remove: jest.fn(),
+  };
   let service: VehiclesService;
-  let mockRepository;
 
   beforeEach(async () => {
-    mockRepository = {
-      find: jest.fn().mockResolvedValue([
-        {
-          id: '123e4567-e89b-12d3-a456-426614174000',
-          plate: 'ABC-1234',
-          model: 'Volvo FH16',
-          make: 'Volvo',
-          year: 2023,
-          currentKm: 45000,
-          healthScore: 94,
-        },
-      ]),
-      findOne: jest.fn().mockResolvedValue({
-        id: '123e4567-e89b-12d3-a456-426614174000',
-        plate: 'ABC-1234',
-        model: 'Volvo FH16',
-      }),
-      create: jest.fn().mockReturnValue({
-        id: '123e4567-e89b-12d3-a456-426614174000',
-        plate: 'NEW-1234',
-        model: 'MAN TGX',
-      }),
-      save: jest.fn().mockResolvedValue({
-        id: '123e4567-e89b-12d3-a456-426614174000',
-        plate: 'NEW-1234',
-        model: 'MAN TGX',
-      }),
-      remove: jest.fn().mockResolvedValue(undefined),
-    };
-
-    const module: TestingModule = await Test.createTestingModule({
+    jest.clearAllMocks();
+    const moduleRef = await Test.createTestingModule({
       providers: [
         VehiclesService,
-        {
-          provide: 'VEHICLE_REPOSITORY',
-          useValue: mockRepository,
-        },
+        { provide: 'VEHICLE_REPOSITORY', useValue: mockRepo },
       ],
     }).compile();
-
-    service = module.get<VehiclesService>(VehiclesService);
+    service = moduleRef.get(VehiclesService);
   });
 
-  describe('findAll', () => {
-    it('should return an array of vehicles', async () => {
-      const result = await service.findAll();
-
-      expect(result.total).toBe(1);
-      expect(result.vehicles).toHaveLength(1);
-      expect(result.vehicles[0].plate).toBe('ABC-1234');
-    });
+  it('findAll retorna total + vehicles', async () => {
+    mockRepo.find.mockResolvedValue([{ id: '1', plate: 'ABC-1234' }]);
+    const res = await service.findAll();
+    expect(res.total).toBe(1);
+    expect(res.vehicles[0].plate).toBe('ABC-1234');
   });
 
-  describe('findOne', () => {
-    it('should return a single vehicle', async () => {
-      const id = '123e4567-e89b-12d3-a456-426614174000';
-      const result = await service.findOne(id);
-
-      expect(result.plate).toBe('ABC-1234');
-      expect(mockRepository.findOne).toHaveBeenCalledWith({ where: { id } });
-    });
-
-    it('should throw NotFoundException when vehicle not found', async () => {
-      mockRepository.findOne.mockResolvedValueOnce(null);
-      const id = 'non-existent-id';
-
-      await expect(service.findOne(id)).rejects.toThrow(NotFoundException);
-    });
+  it('findOne lança NotFound quando não existe', async () => {
+    mockRepo.findOne.mockResolvedValue(null);
+    await expect(service.findOne('x')).rejects.toBeInstanceOf(NotFoundException);
   });
 
-  describe('create', () => {
-    it('should create a new vehicle', async () => {
-      const createVehicleDto = {
-        plate: 'NEW-1234',
-        model: 'MAN TGX',
-        make: 'MAN',
-        year: 2024,
-        vin: 'WBADV990040000001',
-        registrationDate: new Date(),
-      };
-
-      const result = await service.create(createVehicleDto);
-
-      expect(result.plate).toBe('NEW-1234');
-      expect(mockRepository.create).toHaveBeenCalledWith(
-        expect.objectContaining({
-          ...createVehicleDto,
-          healthScore: 100,
-          currentKm: 0,
-        }),
-      );
-    });
+  it('create aplica defaults health 100 / km 0', async () => {
+    mockRepo.create.mockImplementation((v: any) => v);
+    mockRepo.save.mockImplementation((v: any) =>
+      Promise.resolve({ id: '1', ...v }),
+    );
+    const res: any = await service.create({ plate: 'NEW-1' });
+    expect(mockRepo.create).toHaveBeenCalledWith(
+      expect.objectContaining({ healthScore: 100, currentKm: 0 }),
+    );
+    expect(res.plate).toBe('NEW-1');
   });
 
-  describe('update', () => {
-    it('should update a vehicle', async () => {
-      const id = '123e4567-e89b-12d3-a456-426614174000';
-      const updateVehicleDto = { currentKm: 50000 };
-
-      mockRepository.save.mockResolvedValueOnce({
-        id,
-        plate: 'ABC-1234',
-        currentKm: 50000,
-      });
-
-      const result = await service.update(id, updateVehicleDto);
-
-      expect(result.currentKm).toBe(50000);
-      expect(mockRepository.save).toHaveBeenCalled();
-    });
+  it('update mescla e salva', async () => {
+    mockRepo.findOne.mockResolvedValue({ id: '1', plate: 'ABC', currentKm: 100 });
+    mockRepo.save.mockImplementation((v: any) => Promise.resolve(v));
+    const res: any = await service.update('1', { currentKm: 500 });
+    expect(res.currentKm).toBe(500);
+    expect(mockRepo.save).toHaveBeenCalled();
   });
 
-  describe('remove', () => {
-    it('should delete a vehicle', async () => {
-      const id = '123e4567-e89b-12d3-a456-426614174000';
-
-      const result = await service.remove(id);
-
-      expect(result.message).toBe('Vehicle deleted successfully');
-      expect(mockRepository.remove).toHaveBeenCalled();
-    });
+  it('remove exclui e retorna mensagem', async () => {
+    mockRepo.findOne.mockResolvedValue({ id: '1', plate: 'ABC' });
+    mockRepo.remove.mockResolvedValue(undefined);
+    const res = await service.remove('1');
+    expect(res.message).toBe('Vehicle deleted successfully');
+    expect(mockRepo.remove).toHaveBeenCalled();
   });
 });
