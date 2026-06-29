@@ -115,7 +115,11 @@ export default function InspectionsScreen() {
             const vehicle = vehicleMap.get(item.vehicleId);
             const quality = Number(item.aiQualityScore) || 0;
             return (
-              <View style={styles.card}>
+              <TouchableOpacity
+                style={styles.card}
+                activeOpacity={0.85}
+                onPress={() => router.push(`/(app)/inspections/${item.id}`)}
+              >
                 <View style={styles.cardHeader}>
                   <Text style={styles.plate}>
                     {vehicle ? vehicle.plate : item.vehicleId.slice(0, 8) + '…'}
@@ -153,7 +157,7 @@ export default function InspectionsScreen() {
                     {quality > 0 ? `${Math.round(quality * 100)}% IA` : '—'}
                   </Text>
                 </View>
-              </View>
+              </TouchableOpacity>
             );
           }}
           contentContainerStyle={styles.list}

@@ -98,6 +98,11 @@ class ApiService {
     return response.data;
   }
 
+  async getInspection(id: string) {
+    const response = await this.api.get(`/inspections/${id}`);
+    return response.data;
+  }
+
   async createInspection(data: any) {
     const response = await this.api.post('/inspections', data);
     return response.data;
@@ -145,3 +150,12 @@ class ApiService {
 }
 
 export const apiService = new ApiService();
+
+// Resolve uma URL de foto: caminho relativo (/uploads/x) -> URL absoluta do backend.
+export function resolvePhotoUrl(path?: string | null): string | null {
+  if (!path) return null;
+  if (path.startsWith('http://') || path.startsWith('https://')) return path;
+  const origin = API_BASE_URL.replace(/\/api\/?$/, '');
+  if (path.startsWith('/')) return `${origin}${path}`;
+  return path;
+}
