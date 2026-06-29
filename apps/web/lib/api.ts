@@ -107,4 +107,6 @@ export const analyticsApi = {
   getFleet: () => api.get('/analytics/fleet'),
   getDriver: (id: string) => api.get(`/analytics/driver/${id}`),
   getVehicle: (id: string) => api.get(`/analytics/vehicle/${id}`),
+  getMaintenanceReport: () => api.get('/analytics/reports/maintenance'),
+  getComplianceReport: () => api.get('/analytics/reports/compliance'),
 };
