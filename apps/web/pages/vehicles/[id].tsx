@@ -164,13 +164,21 @@ export default function VehicleDetailPage() {
                 </p>
                 <p className="mt-1 text-sm text-muted">Ano {vehicle.year}</p>
               </div>
-              <button
-                onClick={onDelete}
-                disabled={deleting}
-                className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-2.5 text-sm font-medium text-red-300 transition hover:bg-red-500/20 disabled:opacity-60"
-              >
-                {deleting ? 'Excluindo…' : 'Excluir'}
-              </button>
+              <div className="flex items-center gap-3">
+                <Link
+                  href={`/vehicles/edit/${vehicle.id}`}
+                  className="btn-ghost text-sm"
+                >
+                  Editar
+                </Link>
+                <button
+                  onClick={onDelete}
+                  disabled={deleting}
+                  className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-2.5 text-sm font-medium text-red-300 transition hover:bg-red-500/20 disabled:opacity-60"
+                >
+                  {deleting ? 'Excluindo…' : 'Excluir'}
+                </button>
+              </div>
             </div>
 
             <div className="grid gap-4 lg:grid-cols-3">
