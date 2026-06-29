@@ -178,6 +178,21 @@ export default function Dashboard() {
           </Link>
 
           <Link
+            href="/drivers"
+            className="panel group flex items-center justify-between p-6 transition hover:border-[var(--border-strong)] hover:bg-white/[0.03]"
+          >
+            <div>
+              <div className="font-display text-lg font-bold">Motoristas</div>
+              <div className="mt-1 text-sm text-muted">
+                Equipe, CNH e desempenho
+              </div>
+            </div>
+            <span className="text-2xl text-amber transition group-hover:translate-x-1">
+              →
+            </span>
+          </Link>
+
+          <Link
             href="/inspections"
             className="panel group flex items-center justify-between p-6 transition hover:border-[var(--border-strong)] hover:bg-white/[0.03]"
           >
