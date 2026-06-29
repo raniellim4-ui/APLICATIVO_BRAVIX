@@ -12,7 +12,11 @@ import {
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { apiService } from '@services/api';
 import { PrimaryButton } from '@components/PrimaryButton';
-import { REQUIRED_PHOTO_SLOTS } from '@constants/inspection';
+import {
+  REQUIRED_PHOTO_SLOTS,
+  INSPECTION_TYPES,
+  InspectionType,
+} from '@constants/inspection';
 import { useInspectionStore } from '@store/inspectionStore';
 import { colors, radius, spacing } from '@constants/theme';
 
@@ -23,26 +27,35 @@ export default function InspectionScreen() {
     plate?: string;
   }>();
   const { inspectionId, photos, startSession, reset } = useInspectionStore();
-  const [loading, setLoading] = useState(true);
+  const [creating, setCreating] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const [selectedType, setSelectedType] = useState<InspectionType>('pre_trip');
 
   const capturedCount = useMemo(
     () => REQUIRED_PHOTO_SLOTS.filter((s) => photos[s.key]).length,
     [photos],
   );
   const allCaptured = capturedCount === REQUIRED_PHOTO_SLOTS.length;
+  const selectedTypeLabel = useMemo(
+    () => INSPECTION_TYPES.find((t) => t.key === selectedType)?.label ?? '',
+    [selectedType],
+  );
 
-  const initInspection = useCallback(async () => {
+  // Começa cada entrada na tela com uma sessão limpa para escolher o tipo.
+  useEffect(() => {
+    reset();
+  }, [reset]);
+
+  const startInspection = useCallback(async () => {
     if (!vehicleId) return;
     setError('');
-    setLoading(true);
+    setCreating(true);
     try {
-      reset();
       const inspection = await apiService.createInspection({
         vehicleId,
-        type: 'pre_trip',
-        inspectionType: 'pre_trip',
+        type: selectedType,
+        inspectionType: selectedType,
       });
       startSession(vehicleId, inspection.id);
     } catch (err: any) {
@@ -50,13 +63,9 @@ export default function InspectionScreen() {
         err?.response?.data?.message || 'Não foi possível iniciar a inspeção.',
       );
     } finally {
-      setLoading(false);
+      setCreating(false);
     }
-  }, [vehicleId, reset, startSession]);
-
-  useEffect(() => {
-    initInspection();
-  }, [initInspection]);
+  }, [vehicleId, selectedType, startSession]);
 
   const openCamera = (slot: (typeof REQUIRED_PHOTO_SLOTS)[number]) => {
     if (!inspectionId || !vehicleId) return;
@@ -116,19 +125,56 @@ export default function InspectionScreen() {
         <View style={{ width: 60 }} />
       </View>
 
-      {loading ? (
+      {creating ? (
         <View style={styles.center}>
           <ActivityIndicator size="large" color={colors.primary} />
-          <Text style={styles.loadingText}>Preparando inspeção…</Text>
+          <Text style={styles.loadingText}>Iniciando inspeção…</Text>
         </View>
-      ) : error && !inspectionId ? (
-        <View style={styles.center}>
-          <Text style={styles.errorText}>{error}</Text>
-          <PrimaryButton title="Tentar novamente" onPress={initInspection} />
-        </View>
+      ) : !inspectionId ? (
+        <ScrollView contentContainerStyle={styles.content}>
+          <Text style={styles.plate}>{plate || 'Veículo'}</Text>
+          <Text style={styles.subtitle}>Escolha o tipo de inspeção</Text>
+
+          <View style={styles.typeList}>
+            {INSPECTION_TYPES.map((t) => {
+              const active = t.key === selectedType;
+              return (
+                <TouchableOpacity
+                  key={t.key}
+                  style={[styles.typeCard, active && styles.typeCardActive]}
+                  activeOpacity={0.85}
+                  onPress={() => setSelectedType(t.key)}
+                >
+                  <View style={styles.typeTextWrap}>
+                    <Text
+                      style={[styles.typeLabel, active && styles.typeLabelActive]}
+                    >
+                      {t.label}
+                    </Text>
+                    <Text style={styles.typeDesc}>{t.description}</Text>
+                  </View>
+                  <View style={[styles.radio, active && styles.radioActive]}>
+                    {active && <View style={styles.radioDot} />}
+                  </View>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+
+          {!!error && <Text style={styles.errorText}>{error}</Text>}
+
+          <PrimaryButton
+            title="Iniciar inspeção"
+            onPress={startInspection}
+            style={styles.submit}
+          />
+        </ScrollView>
       ) : (
         <ScrollView contentContainerStyle={styles.content}>
           <Text style={styles.plate}>{plate || 'Veículo'}</Text>
+          <View style={styles.typeBadge}>
+            <Text style={styles.typeBadgeText}>{selectedTypeLabel}</Text>
+          </View>
           <Text style={styles.subtitle}>
             Capture {REQUIRED_PHOTO_SLOTS.length} fotos obrigatórias
           </Text>
@@ -220,6 +266,54 @@ const styles = StyleSheet.create({
     fontVariant: ['tabular-nums'],
   },
   subtitle: { color: colors.textMuted, marginTop: 4, marginBottom: spacing.lg },
+  typeList: { gap: spacing.md, marginBottom: spacing.lg },
+  typeCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.surface,
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
+    padding: spacing.md,
+  },
+  typeCardActive: {
+    borderColor: colors.primary,
+    backgroundColor: colors.surfaceAlt,
+  },
+  typeTextWrap: { flex: 1 },
+  typeLabel: { color: colors.text, fontSize: 16, fontWeight: '700' },
+  typeLabelActive: { color: colors.primary },
+  typeDesc: { color: colors.textMuted, fontSize: 12, marginTop: 2 },
+  radio: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    borderWidth: 2,
+    borderColor: colors.border,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  radioActive: { borderColor: colors.primary },
+  radioDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: colors.primary,
+  },
+  typeBadge: {
+    alignSelf: 'flex-start',
+    backgroundColor: colors.surfaceAlt,
+    borderRadius: radius.sm,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 4,
+    marginTop: spacing.sm,
+  },
+  typeBadgeText: {
+    color: colors.primary,
+    fontSize: 12,
+    fontWeight: '700',
+    letterSpacing: 0.5,
+  },
   progressRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
