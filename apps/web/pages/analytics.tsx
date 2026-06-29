@@ -100,12 +100,12 @@ export default function AnalyticsPage() {
   return (
     <>
       <Head>
-        <title>Análises — BRAVIX Fleet</title>
+        <title>Análises — BRAVIX Frota</title>
       </Head>
       <main className="mx-auto max-w-6xl px-6 py-10">
         <div className="mb-8">
           <Link href="/" className="font-mono text-xs text-amber hover:underline">
-            ← dashboard
+            ← painel
           </Link>
           <p className="label-eyebrow mb-1 mt-3">Inteligência da frota</p>
           <h1 className="text-4xl font-extrabold">Análises</h1>

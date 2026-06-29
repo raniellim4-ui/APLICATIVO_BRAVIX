@@ -28,7 +28,7 @@ export class InspectionsService {
       where: { id },
     });
     if (!inspection) {
-      throw new NotFoundException(`Inspection with ID ${id} not found`);
+      throw new NotFoundException(`Inspeção com ID ${id} não encontrada`);
     }
     return inspection;
   }
@@ -70,7 +70,7 @@ export class InspectionsService {
     const inspection = await this.findOne(id);
     if (inspection.status !== 'draft') {
       throw new BadRequestException(
-        'Cannot add photos to a submitted inspection',
+        'Não é possível adicionar fotos a uma inspeção já enviada',
       );
     }
     const incoming: string[] = photosDto.photoUrls || [];
@@ -83,7 +83,7 @@ export class InspectionsService {
   async addSignature(id: string, signatureDto: any) {
     const inspection = await this.findOne(id);
     if (!signatureDto.signature) {
-      throw new BadRequestException('Signature is required');
+      throw new BadRequestException('A assinatura é obrigatória');
     }
     inspection.signatureDigital = signatureDto.signature;
     return await this.inspectionRepository.save(inspection);
@@ -92,13 +92,13 @@ export class InspectionsService {
   async submitInspection(id: string) {
     const inspection = await this.findOne(id);
     if ((inspection.photos?.length || 0) < REQUIRED_PHOTOS) {
-      throw new BadRequestException('All required photos must be provided');
+      throw new BadRequestException('Todas as fotos obrigatórias devem ser enviadas');
     }
     if (!inspection.signatureDigital) {
-      throw new BadRequestException('Signature is required');
+      throw new BadRequestException('A assinatura é obrigatória');
     }
     inspection.status = 'completed';
     const saved = await this.inspectionRepository.save(inspection);
-    return { message: 'Inspection submitted successfully', inspection: saved };
+    return { message: 'Inspeção enviada com sucesso', inspection: saved };
   }
 }

@@ -105,7 +105,7 @@ export default function InspectionDetailPage() {
   return (
     <>
       <Head>
-        <title>Inspeção — BRAVIX Fleet</title>
+        <title>Inspeção — BRAVIX Frota</title>
       </Head>
       <main className="mx-auto max-w-6xl px-6 py-10">
         <Link
@@ -204,7 +204,7 @@ export default function InspectionDetailPage() {
                             <div className="flex h-full flex-col items-center justify-center p-2 text-center">
                               <span className="text-2xl">📷</span>
                               <span className="mt-1 text-[10px] text-muted">
-                                foto local do device
+                                foto local do dispositivo
                               </span>
                             </div>
                           )}

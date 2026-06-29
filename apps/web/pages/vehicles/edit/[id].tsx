@@ -102,7 +102,7 @@ export default function EditVehiclePage() {
   return (
     <>
       <Head>
-        <title>Editar veículo — BRAVIX Fleet</title>
+        <title>Editar veículo — BRAVIX Frota</title>
       </Head>
       <main className="mx-auto max-w-2xl px-6 py-10">
         <Link

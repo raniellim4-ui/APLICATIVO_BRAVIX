@@ -120,7 +120,7 @@ export default function VehicleDetailPage() {
     <>
       <Head>
         <title>
-          {vehicle ? `${vehicle.plate} — BRAVIX Fleet` : 'Veículo — BRAVIX Fleet'}
+          {vehicle ? `${vehicle.plate} — BRAVIX Frota` : 'Veículo — BRAVIX Frota'}
         </title>
       </Head>
       <main className="mx-auto max-w-6xl px-6 py-10">

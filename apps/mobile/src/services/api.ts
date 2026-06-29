@@ -54,7 +54,7 @@ class ApiService {
     await AsyncStorage.removeItem('auth_token');
   }
 
-  // Auth endpoints
+  // Endpoints de autenticação
   async login(email: string, password: string) {
     const response = await this.api.post('/auth/login', { email, password });
     await this.setToken(response.data.access_token);
@@ -76,7 +76,7 @@ class ApiService {
     return response.data;
   }
 
-  // Vehicle endpoints
+  // Endpoints de veículos
   async getVehicles() {
     const response = await this.api.get('/vehicles');
     return response.data;
@@ -92,7 +92,7 @@ class ApiService {
     return response.data;
   }
 
-  // Inspection endpoints
+  // Endpoints de inspeções
   async getInspections() {
     const response = await this.api.get('/inspections');
     return response.data;
@@ -127,7 +127,7 @@ class ApiService {
     return response.data;
   }
 
-  // Faz upload de uma foto local (uri do device) e retorna a URL no servidor
+  // Faz upload de uma foto local (URI do dispositivo) e retorna a URL no servidor.
   async uploadPhoto(uri: string): Promise<string> {
     const name = uri.split('/').pop() || `photo-${Date.now()}.jpg`;
     const extMatch = /\.(\w+)$/.exec(name);
@@ -142,7 +142,7 @@ class ApiService {
     return response.data.url as string;
   }
 
-  // Dashboard endpoints
+  // Endpoints do painel
   async getDriverDashboard() {
     const response = await this.api.get('/drivers/:id/dashboard');
     return response.data;

@@ -22,18 +22,18 @@ async function bootstrap() {
   // Servir arquivos enviados em /uploads (fora do prefixo /api)
   app.use('/uploads', express.static(join(process.cwd(), UPLOAD_DIR)));
 
-  // Global API prefix (frontends consume http://host/api/...)
+  // Prefixo global da API (frontends consomem http://host/api/...)
   app.setGlobalPrefix('api');
 
-  // Global Exception Filter
+  // Filtro global de exceções
   app.useGlobalFilters(new HttpExceptionFilter());
 
-  // Middleware
+  // Middlewares
   app.use(morgan('combined'));
   app.use(new LoggerMiddleware().use.bind(new LoggerMiddleware()));
   app.use(new RateLimitMiddleware().use.bind(new RateLimitMiddleware()));
 
-  // Global Validation Pipe
+  // Pipe global de validação
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -55,7 +55,7 @@ async function bootstrap() {
     maxAge: 3600,
   });
 
-  // Security Headers
+  // Cabeçalhos de segurança
   app.use((req: any, res: any, next: any) => {
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('X-Frame-Options', 'DENY');
@@ -64,13 +64,13 @@ async function bootstrap() {
     next();
   });
 
-  // Swagger Documentation
+  // Documentação Swagger
   const config = new DocumentBuilder()
-    .setTitle('🚗 Vehicle Inspection API')
-    .setDescription('Intelligent Vehicle Inspection Assistant - Enterprise API')
+    .setTitle('🚗 API de Inspeção Veicular')
+    .setDescription('Assistente inteligente de inspeção veicular - API empresarial')
     .setVersion('1.0.0')
     .setContact(
-      'Vehicle Inspection Team',
+      'Equipe de Inspeção Veicular',
       'https://github.com/raniellim4-ui/APLICATIVO_BRAVIX',
       'support@vehicleinspection.com',
     )
@@ -83,33 +83,33 @@ async function bootstrap() {
       },
       'JWT',
     )
-    .addTag('Auth', 'Authentication & Authorization')
-    .addTag('Vehicles', 'Vehicle Management')
-    .addTag('Drivers', 'Driver Management')
-    .addTag('Inspections', 'Inspection Workflows')
-    .addTag('Maintenance', 'Maintenance Scheduling')
-    .addTag('Analytics', 'Fleet Analytics & Reports')
-    .addTag('Health', 'System Health Checks')
+    .addTag('Autenticação', 'Autenticação e autorização')
+    .addTag('Veículos', 'Gestão de veículos')
+    .addTag('Motoristas', 'Gestão de motoristas')
+    .addTag('Inspeções', 'Fluxos de inspeção')
+    .addTag('Manutenção', 'Agendamento de manutenção')
+    .addTag('Análises', 'Análises e relatórios da frota')
+    .addTag('Saúde', 'Verificações de saúde do sistema')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document);
 
-  // Start server
+  // Iniciar servidor
   await app.listen(PORT, () => {
     logger.log(`
 ╔═══════════════════════════════════════════════════════════════╗
 ║                                                               ║
-║  🚗  VEHICLE INSPECTION API - ENTERPRISE                     ║
-║  ✅  Server running on http://localhost:${PORT}              ║
-║  🔧  Environment: ${NODE_ENV.toUpperCase()}                 ║
-║  📚  Docs: http://localhost:${PORT}/api/docs                 ║
-║  🛡️  Security: CORS, RBAC, Rate Limiting, Error Handling   ║
+║  🚗  API DE INSPEÇÃO VEICULAR - EMPRESARIAL                  ║
+║  ✅  Servidor em execução: http://localhost:${PORT}          ║
+║  🔧  Ambiente: ${NODE_ENV.toUpperCase()}                    ║
+║  📚  Documentação: http://localhost:${PORT}/api/docs         ║
+║  🛡️  Segurança: CORS, RBAC, limite de taxa e erros          ║
 ║                                                               ║
-║  Database: PostgreSQL ✅                                     ║
-║  Authentication: JWT + RBAC ✅                               ║
-║  Logging: Enterprise ✅                                       ║
-║  Validation: DTO + Class Validator ✅                         ║
+║  Banco de dados: PostgreSQL ✅                               ║
+║  Autenticação: JWT + RBAC ✅                                  ║
+║  Logs: empresarial ✅                                         ║
+║  Validação: DTO + Class Validator ✅                          ║
 ║                                                               ║
 ╚═══════════════════════════════════════════════════════════════╝
     `);
@@ -117,6 +117,6 @@ async function bootstrap() {
 }
 
 bootstrap().catch((err) => {
-  console.error('Fatal error starting application:', err);
+  console.error('Erro fatal ao iniciar a aplicação:', err);
   process.exit(1);
 });

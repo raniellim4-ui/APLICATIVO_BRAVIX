@@ -11,7 +11,7 @@ export function BrandLogo({ width = 140, height = 48, style }: BrandLogoProps) {
     <Image
       source={require('../../assets/logo-bravix.png')}
       style={[{ width, height, resizeMode: 'contain' }, style]}
-      accessibilityLabel="BRAVIX Fleet"
+      accessibilityLabel="BRAVIX Frota"
     />
   );
 }

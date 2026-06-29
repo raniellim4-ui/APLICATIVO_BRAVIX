@@ -27,7 +27,7 @@ export async function seedDatabase(dataSource: DataSource) {
     const driverPassword = await bcrypt.hash('Driver@123456', 10);
 
     const admin = userRepository.create({
-      name: 'Admin User',
+      name: 'Usuário Administrador',
       email: 'admin@vehicleinspection.com',
       passwordHash: adminPassword,
       role: 'admin',
@@ -35,7 +35,7 @@ export async function seedDatabase(dataSource: DataSource) {
     });
 
     const manager = userRepository.create({
-      name: 'Fleet Manager',
+      name: 'Gestor de Frota',
       email: 'manager@vehicleinspection.com',
       passwordHash: managerPassword,
       role: 'manager',
@@ -43,7 +43,7 @@ export async function seedDatabase(dataSource: DataSource) {
     });
 
     const driver = userRepository.create({
-      name: 'João Driver',
+      name: 'João Motorista',
       email: 'driver@vehicleinspection.com',
       passwordHash: driverPassword,
       role: 'driver',
@@ -67,7 +67,7 @@ export async function seedDatabase(dataSource: DataSource) {
 
   const companyId = uuidv4();
 
-  // Create Vehicles
+  // Criar veículos
   const vehicle1 = vehicleRepository.create({
     companyId,
     plate: 'ABC-1234',
@@ -161,7 +161,7 @@ export async function seedDatabase(dataSource: DataSource) {
     vehicle5,
   ]);
 
-  // Create Drivers
+  // Criar motoristas
   const driver1 = driverRepository.create({
     companyId,
     name: 'João Silva',
@@ -194,7 +194,7 @@ export async function seedDatabase(dataSource: DataSource) {
 
   await driverRepository.save([driver1, driver2]);
 
-  // Create Inspections
+  // Criar inspeções
   const inspection1 = inspectionRepository.create({
     vehicleId: vehicle1.id,
     driverId: driver1.id,
@@ -215,11 +215,11 @@ export async function seedDatabase(dataSource: DataSource) {
 
   await inspectionRepository.save(inspection1);
 
-  // Create Maintenance Schedules
+  // Criar agendamentos de manutenção
   const maintenance1 = maintenanceRepository.create({
     vehicleId: vehicle1.id,
     maintenanceType: 'oil_change',
-    component: 'Engine Oil',
+    component: 'Óleo do motor',
     recommendedKm: 10000,
     alertThresholdKm: 9000,
     nextDueKm: 50000,
@@ -231,7 +231,7 @@ export async function seedDatabase(dataSource: DataSource) {
   const maintenance2 = maintenanceRepository.create({
     vehicleId: vehicle1.id,
     maintenanceType: 'tire_rotation',
-    component: 'Tires',
+    component: 'Pneus',
     recommendedKm: 20000,
     alertThresholdKm: 18000,
     nextDueKm: 60000,
@@ -242,7 +242,7 @@ export async function seedDatabase(dataSource: DataSource) {
 
   await maintenanceRepository.save([maintenance1, maintenance2]);
 
-  console.log('✅ Database seeded successfully!');
+  console.log('✅ Banco de dados populado com sucesso!');
 }
 
 // Runner: executa o seed quando o arquivo é chamado diretamente

@@ -1,7 +1,7 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "description": "Vehicle Inspection Backend API - NestJS + TypeScript",
+  "description": "API backend de inspeção veicular - NestJS + TypeScript",
   "private": true,
   "main": "dist/main.js",
   "scripts": {

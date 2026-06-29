@@ -30,12 +30,12 @@ export class AuthService {
     const user = await this.userRepository.findOne({ where: { email } });
 
     if (!user || !user.isActive) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new UnauthorizedException('Credenciais inválidas');
     }
 
     const passwordMatch = await bcrypt.compare(password, user.passwordHash);
     if (!passwordMatch) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new UnauthorizedException('Credenciais inválidas');
     }
 
     return {
@@ -52,7 +52,7 @@ export class AuthService {
   async register(email: string, password: string, name: string) {
     const existing = await this.userRepository.findOne({ where: { email } });
     if (existing) {
-      throw new ConflictException('Email already in use');
+      throw new ConflictException('E-mail já está em uso');
     }
 
     const passwordHash = await bcrypt.hash(password, 10);

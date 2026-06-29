@@ -27,8 +27,8 @@ describe('MaintenanceService', () => {
   it('getAlertsByVehicle classifica severidade por km restante', async () => {
     vehicleRepo.findOne.mockResolvedValue({ id: 'v1', currentKm: 45000 });
     scheduleRepo.find.mockResolvedValue([
-      { id: 's1', component: 'Oil', nextDueKm: 50000, isActive: true },
-      { id: 's2', component: 'Tires', nextDueKm: 60000, isActive: true },
+      { id: 's1', component: 'Óleo', nextDueKm: 50000, isActive: true },
+      { id: 's2', component: 'Pneus', nextDueKm: 60000, isActive: true },
     ]);
     const res = await service.getAlertsByVehicle('v1');
     expect(res.alerts).toHaveLength(2);
@@ -39,7 +39,7 @@ describe('MaintenanceService', () => {
   it('getAlertsByVehicle ignora agendamentos fora da janela', async () => {
     vehicleRepo.findOne.mockResolvedValue({ id: 'v1', currentKm: 10000 });
     scheduleRepo.find.mockResolvedValue([
-      { id: 's1', component: 'Oil', nextDueKm: 100000, isActive: true }, // 90000 km > 15000
+      { id: 's1', component: 'Óleo', nextDueKm: 100000, isActive: true }, // 90000 km > 15000
     ]);
     const res = await service.getAlertsByVehicle('v1');
     expect(res.alerts).toHaveLength(0);
@@ -47,7 +47,7 @@ describe('MaintenanceService', () => {
 
   it('getAllAlerts marca crítico para vencido e traz a placa', async () => {
     scheduleRepo.find.mockResolvedValue([
-      { id: 's1', component: 'Oil', nextDueKm: 40000, vehicleId: 'v1', isActive: true },
+      { id: 's1', component: 'Óleo', nextDueKm: 40000, vehicleId: 'v1', isActive: true },
     ]);
     vehicleRepo.find.mockResolvedValue([
       { id: 'v1', plate: 'ABC-1234', currentKm: 45000 }, // -5000 km => crítico

@@ -119,7 +119,7 @@ export class AnalyticsService {
 
     const driver = await drivers.findOne({ where: { id: driverId } });
     if (!driver) {
-      throw new NotFoundException(`Driver with ID ${driverId} not found`);
+      throw new NotFoundException(`Motorista com ID ${driverId} não encontrado`);
     }
 
     const completedInPeriod = await inspections.count({
@@ -132,7 +132,7 @@ export class AnalyticsService {
 
     return {
       driverId,
-      period: `${periodDays} days`,
+      period: `${periodDays} dias`,
       totalKm: Number(driver.totalKm) || 0,
       fuelExpense: round(Number(driver.fuelExpense) || 0),
       fuelEfficiency: round(Number(driver.fuelEfficiency) || 0, 1),
@@ -148,7 +148,7 @@ export class AnalyticsService {
 
     const vehicle = await vehicles.findOne({ where: { id: vehicleId } });
     if (!vehicle) {
-      throw new NotFoundException(`Vehicle with ID ${vehicleId} not found`);
+      throw new NotFoundException(`Veículo com ID ${vehicleId} não encontrado`);
     }
 
     const vehicleInspections = await inspections.find({

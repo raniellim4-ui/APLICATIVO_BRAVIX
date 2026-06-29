@@ -40,7 +40,7 @@ export default function LoginPage() {
   return (
     <>
       <Head>
-        <title>Entrar — BRAVIX Fleet</title>
+        <title>Entrar — BRAVIX Frota</title>
       </Head>
       <main className="grid min-h-screen lg:grid-cols-2">
         {/* Left / brand panel */}
@@ -65,7 +65,7 @@ export default function LoginPage() {
           <div className="flex gap-8 font-mono text-sm text-muted">
             <div>
               <div className="text-2xl font-bold text-[var(--text)]">30+</div>
-              endpoints
+              rotas de API
             </div>
             <div>
               <div className="text-2xl font-bold text-[var(--text)]">RBAC</div>

@@ -10,7 +10,7 @@ export function BrandLogo({ width = 140, height = 48, className }: BrandLogoProp
   return (
     <Image
       src="/logo-bravix.png"
-      alt="BRAVIX Fleet"
+      alt="BRAVIX Frota"
       width={width}
       height={height}
       className={className}

@@ -89,7 +89,7 @@ export default function NewVehiclePage() {
   return (
     <>
       <Head>
-        <title>Novo veículo — BRAVIX Fleet</title>
+        <title>Novo veículo — BRAVIX Frota</title>
       </Head>
       <main className="mx-auto max-w-2xl px-6 py-10">
         <Link

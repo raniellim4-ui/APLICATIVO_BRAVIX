@@ -20,7 +20,7 @@ export class VehiclesService {
   async findOne(id: string) {
     const vehicle = await this.vehicleRepository.findOne({ where: { id } });
     if (!vehicle) {
-      throw new NotFoundException(`Vehicle with ID ${id} not found`);
+      throw new NotFoundException(`Veículo com ID ${id} não encontrado`);
     }
     return vehicle;
   }
@@ -43,6 +43,6 @@ export class VehiclesService {
   async remove(id: string) {
     const vehicle = await this.findOne(id);
     await this.vehicleRepository.remove(vehicle);
-    return { message: 'Vehicle deleted successfully', vehicle };
+    return { message: 'Veículo excluído com sucesso', vehicle };
   }
 }

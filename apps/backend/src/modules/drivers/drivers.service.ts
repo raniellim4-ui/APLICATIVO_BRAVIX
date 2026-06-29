@@ -20,7 +20,7 @@ export class DriversService {
   async findOne(id: string) {
     const driver = await this.driverRepository.findOne({ where: { id } });
     if (!driver) {
-      throw new NotFoundException(`Driver with ID ${id} not found`);
+      throw new NotFoundException(`Motorista com ID ${id} não encontrado`);
     }
     return driver;
   }
@@ -45,7 +45,7 @@ export class DriversService {
   async remove(id: string) {
     const driver = await this.findOne(id);
     await this.driverRepository.remove(driver);
-    return { message: 'Driver deleted successfully', driver };
+    return { message: 'Motorista excluído com sucesso', driver };
   }
 
   async getDashboard(id: string) {

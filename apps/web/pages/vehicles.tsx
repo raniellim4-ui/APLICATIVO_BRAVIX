@@ -33,13 +33,13 @@ export default function VehiclesPage() {
   return (
     <>
       <Head>
-        <title>Veículos — BRAVIX Fleet</title>
+        <title>Veículos — BRAVIX Frota</title>
       </Head>
       <main className="mx-auto max-w-6xl px-6 py-10">
         <div className="mb-8 flex items-end justify-between">
           <div>
             <Link href="/" className="font-mono text-xs text-amber hover:underline">
-              ← dashboard
+              ← painel
             </Link>
             <p className="label-eyebrow mb-1 mt-3">Frota</p>
             <h1 className="text-4xl font-extrabold">Veículos</h1>

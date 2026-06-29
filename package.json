@@ -1,7 +1,7 @@
 {
   "name": "vehicle-inspection-app",
   "version": "1.0.0",
-  "description": "Intelligent Vehicle Inspection Assistant - Enterprise Application",
+  "description": "Assistente inteligente de inspeção veicular - aplicação empresarial",
   "private": true,
   "workspaces": [
     "apps/backend",

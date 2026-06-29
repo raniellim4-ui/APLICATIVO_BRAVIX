@@ -92,13 +92,13 @@ export default function InspectionsPage() {
   return (
     <>
       <Head>
-        <title>Inspeções — BRAVIX Fleet</title>
+        <title>Inspeções — BRAVIX Frota</title>
       </Head>
       <main className="mx-auto max-w-6xl px-6 py-10">
         <div className="mb-8 flex items-end justify-between">
           <div>
             <Link href="/" className="font-mono text-xs text-amber hover:underline">
-              ← dashboard
+              ← painel
             </Link>
             <p className="label-eyebrow mb-1 mt-3">Operações</p>
             <h1 className="text-4xl font-extrabold">Inspeções</h1>

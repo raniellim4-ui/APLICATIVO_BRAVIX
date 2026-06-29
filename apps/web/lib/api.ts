@@ -6,12 +6,12 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/a
 export const API_ORIGIN = API_BASE_URL.replace(/\/api\/?$/, '');
 
 // Resolve uma URL de foto: caminho relativo (/uploads/x) -> URL absoluta do backend.
-// URIs http(s) já completas são mantidas; URIs locais de device (file://) não são exibíveis.
+// URIs http(s) já completas são mantidas; URIs locais do dispositivo (file://) não são exibíveis.
 export function assetUrl(path?: string | null): string | null {
   if (!path) return null;
   if (path.startsWith('http://') || path.startsWith('https://')) return path;
   if (path.startsWith('/')) return `${API_ORIGIN}${path}`;
-  return null; // file:// ou caminhos locais do device não renderizam no web
+  return null; // file:// ou caminhos locais do dispositivo não renderizam no web
 }
 
 export const api = axios.create({
@@ -22,7 +22,7 @@ export const api = axios.create({
   },
 });
 
-// Request interceptor
+// Interceptor de requisição
 api.interceptors.request.use(
   (config) => {
     const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null;
@@ -36,12 +36,12 @@ api.interceptors.request.use(
   },
 );
 
-// Response interceptor
+// Interceptor de resposta
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
     if (error.response?.status === 401) {
-      // Handle unauthorized - redirect to login
+      // Trata acesso não autorizado e redireciona para o login.
       if (typeof window !== 'undefined') {
         localStorage.removeItem('auth_token');
         window.location.href = '/login';
@@ -51,7 +51,7 @@ api.interceptors.response.use(
   },
 );
 
-// Auth API
+// API de autenticação
 export const authApi = {
   login: (email: string, password: string) =>
     api.post('/auth/login', { email, password }),
@@ -63,7 +63,7 @@ export const authApi = {
   },
 };
 
-// Vehicles API
+// API de veículos
 export const vehiclesApi = {
   getAll: () => api.get('/vehicles'),
   getOne: (id: string) => api.get(`/vehicles/${id}`),
@@ -72,7 +72,7 @@ export const vehiclesApi = {
   delete: (id: string) => api.delete(`/vehicles/${id}`),
 };
 
-// Drivers API
+// API de motoristas
 export const driversApi = {
   getAll: () => api.get('/drivers'),
   getOne: (id: string) => api.get(`/drivers/${id}`),
@@ -82,7 +82,7 @@ export const driversApi = {
   delete: (id: string) => api.delete(`/drivers/${id}`),
 };
 
-// Inspections API
+// API de inspeções
 export const inspectionsApi = {
   getAll: () => api.get('/inspections'),
   getOne: (id: string) => api.get(`/inspections/${id}`),
@@ -93,7 +93,7 @@ export const inspectionsApi = {
   submit: (id: string) => api.post(`/inspections/${id}/submit`),
 };
 
-// Maintenance API
+// API de manutenção
 export const maintenanceApi = {
   getScheduleByVehicle: (vehicleId: string) =>
     api.get(`/maintenance/vehicle/${vehicleId}`),
@@ -102,7 +102,7 @@ export const maintenanceApi = {
   getAllAlerts: () => api.get('/maintenance/alerts'),
 };
 
-// Analytics API
+// API de análises
 export const analyticsApi = {
   getFleet: () => api.get('/analytics/fleet'),
   getDriver: (id: string) => api.get(`/analytics/driver/${id}`),

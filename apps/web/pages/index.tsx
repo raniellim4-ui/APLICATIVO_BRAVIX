@@ -95,8 +95,8 @@ export default function Dashboard() {
   return (
     <>
       <Head>
-        <title>Painel — BRAVIX Fleet</title>
-        <meta name="description" content="Fleet management control room" />
+        <title>Painel — BRAVIX Frota</title>
+        <meta name="description" content="Central de controle de gestão da frota" />
       </Head>
 
       <header className="sticky top-0 z-10 border-b bg-[var(--bg)]/80 backdrop-blur">

@@ -59,7 +59,7 @@ describe('VehiclesService', () => {
     mockRepo.findOne.mockResolvedValue({ id: '1', plate: 'ABC' });
     mockRepo.remove.mockResolvedValue(undefined);
     const res = await service.remove('1');
-    expect(res.message).toBe('Vehicle deleted successfully');
+    expect(res.message).toBe('Veículo excluído com sucesso');
     expect(mockRepo.remove).toHaveBeenCalled();
   });
 });
