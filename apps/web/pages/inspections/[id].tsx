@@ -2,7 +2,7 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useQuery } from '@tanstack/react-query';
-import { inspectionsApi, vehiclesApi, assetUrl } from '@/lib/api';
+import { inspectionsApi, vehiclesApi, driversApi, assetUrl } from '@/lib/api';
 
 interface InspectionDetail {
   id: string;
@@ -24,6 +24,11 @@ interface Vehicle {
   plate: string;
   make: string;
   model: string;
+}
+
+interface Driver {
+  id: string;
+  name: string;
 }
 
 const typeLabels: Record<string, string> = {
@@ -98,7 +103,17 @@ export default function InspectionDetailPage() {
     },
   });
 
+  const driverQuery = useQuery({
+    queryKey: ['driver', insp?.driverId],
+    enabled: !!insp?.driverId,
+    queryFn: async () => {
+      const res = await driversApi.getOne(insp!.driverId as string);
+      return res.data as Driver;
+    },
+  });
+
   const vehicle = vehicleQuery.data;
+  const driver = driverQuery.data;
   const quality = Number(insp?.aiQualityScore) || 0;
   const photos = insp?.photos ?? [];
 
@@ -158,6 +173,10 @@ export default function InspectionDetailPage() {
               <div className="panel p-5 lg:col-span-1">
                 <p className="label-eyebrow mb-4">Resumo</p>
                 <DetailRow label="Data" value={formatDateTime(insp.inspectionDate)} />
+                <DetailRow
+                  label="Motorista"
+                  value={driver?.name ?? (insp.driverId ? '…' : '—')}
+                />
                 <DetailRow label="Fotos" value={String(insp.totalPhotos)} />
                 <DetailRow
                   label="Qualidade IA"

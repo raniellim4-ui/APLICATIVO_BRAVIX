@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { useMemo } from 'react';
 import { useRouter } from 'next/router';
 import { useQuery } from '@tanstack/react-query';
-import { inspectionsApi, vehiclesApi } from '@/lib/api';
+import { inspectionsApi, vehiclesApi, driversApi } from '@/lib/api';
 
 interface Inspection {
   id: string;
@@ -22,6 +22,11 @@ interface Vehicle {
   plate: string;
   make: string;
   model: string;
+}
+
+interface Driver {
+  id: string;
+  name: string;
 }
 
 const typeLabels: Record<string, string> = {
@@ -78,11 +83,25 @@ export default function InspectionsPage() {
     },
   });
 
+  const driversQuery = useQuery({
+    queryKey: ['drivers'],
+    queryFn: async () => {
+      const res = await driversApi.getAll();
+      return res.data as { total: number; drivers: Driver[] };
+    },
+  });
+
   const vehicleMap = useMemo(() => {
     const map = new Map<string, Vehicle>();
     (vehiclesQuery.data?.vehicles ?? []).forEach((v) => map.set(v.id, v));
     return map;
   }, [vehiclesQuery.data]);
+
+  const driverMap = useMemo(() => {
+    const map = new Map<string, Driver>();
+    (driversQuery.data?.drivers ?? []).forEach((d) => map.set(d.id, d));
+    return map;
+  }, [driversQuery.data]);
 
   const inspections = inspectionsQuery.data?.inspections ?? [];
   const isLoading = inspectionsQuery.isLoading;
@@ -137,6 +156,7 @@ export default function InspectionsPage() {
                 <thead>
                   <tr className="label-eyebrow border-b text-left">
                     <th className="px-5 py-3 font-semibold">Veículo</th>
+                    <th className="px-5 py-3 font-semibold">Motorista</th>
                     <th className="px-5 py-3 font-semibold">Tipo</th>
                     <th className="px-5 py-3 font-semibold">Data</th>
                     <th className="px-5 py-3 text-center font-semibold">Fotos</th>
@@ -147,6 +167,9 @@ export default function InspectionsPage() {
                 <tbody>
                   {inspections.map((insp) => {
                     const vehicle = vehicleMap.get(insp.vehicleId);
+                    const driver = insp.driverId
+                      ? driverMap.get(insp.driverId)
+                      : undefined;
                     const quality = Number(insp.aiQualityScore) || 0;
                     return (
                       <tr
@@ -168,6 +191,13 @@ export default function InspectionsPage() {
                             <div className="mt-0.5 text-xs text-muted">
                               {vehicle.make} {vehicle.model}
                             </div>
+                          )}
+                        </td>
+                        <td className="px-5 py-4">
+                          {driver ? (
+                            <span className="text-sm">{driver.name}</span>
+                          ) : (
+                            <span className="text-xs text-muted">—</span>
                           )}
                         </td>
                         <td className="px-5 py-4">
