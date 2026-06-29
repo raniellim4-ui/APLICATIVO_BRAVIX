@@ -1,5 +1,6 @@
 import Head from 'next/head';
 import Link from 'next/link';
+import { useState } from 'react';
 import { useRouter } from 'next/router';
 import { useQuery } from '@tanstack/react-query';
 import { maintenanceApi, vehiclesApi } from '@/lib/api';
@@ -96,6 +97,25 @@ export default function VehicleDetailPage() {
   const score = Number(vehicle?.healthScore) || 0;
   const alerts = alertsQuery.data?.alerts ?? [];
 
+  const [deleting, setDeleting] = useState(false);
+  const onDelete = async () => {
+    if (!vehicle) return;
+    if (
+      !window.confirm(
+        `Excluir o veículo ${vehicle.plate}? Esta ação não pode ser desfeita.`,
+      )
+    )
+      return;
+    setDeleting(true);
+    try {
+      await vehiclesApi.delete(vehicle.id);
+      router.replace('/vehicles');
+    } catch {
+      setDeleting(false);
+      window.alert('Não foi possível excluir o veículo.');
+    }
+  };
+
   return (
     <>
       <Head>
@@ -144,6 +164,13 @@ export default function VehicleDetailPage() {
                 </p>
                 <p className="mt-1 text-sm text-muted">Ano {vehicle.year}</p>
               </div>
+              <button
+                onClick={onDelete}
+                disabled={deleting}
+                className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-2.5 text-sm font-medium text-red-300 transition hover:bg-red-500/20 disabled:opacity-60"
+              >
+                {deleting ? 'Excluindo…' : 'Excluir'}
+              </button>
             </div>
 
             <div className="grid gap-4 lg:grid-cols-3">

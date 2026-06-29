@@ -44,13 +44,18 @@ export default function VehiclesPage() {
             <p className="label-eyebrow mb-1 mt-3">Frota</p>
             <h1 className="text-4xl font-extrabold">Veículos</h1>
           </div>
-          <button
-            onClick={() => refetch()}
-            disabled={isFetching}
-            className="btn-ghost text-sm"
-          >
-            {isFetching ? 'Atualizando…' : '↻ Atualizar'}
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => refetch()}
+              disabled={isFetching}
+              className="btn-ghost text-sm"
+            >
+              {isFetching ? 'Atualizando…' : '↻ Atualizar'}
+            </button>
+            <Link href="/vehicles/new" className="btn-amber text-sm">
+              + Novo veículo
+            </Link>
+          </div>
         </div>
 
         {isLoading ? (
